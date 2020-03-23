@@ -1,7 +1,11 @@
-from PIL import Image, ImageDraw, ImageFilter
-from abc import abstractmethod
-import os
 import math
+import os
+from abc import abstractmethod
+
+from PIL import Image, ImageDraw, ImageFilter
+
+import face_recognition
+import numpy as np
 
 
 class IllegalStateException(Exception):
@@ -33,7 +37,7 @@ class GhostEffect(ImageEffect):
 
         super().__init__()
 
-    def process_image(self, img):
+    def process_image(self, img: Image.Image):
         """
         for this, we need to:
             1. Create an all blank image the size of the passed in image
@@ -76,3 +80,31 @@ class GhostEffect(ImageEffect):
         blur_mask = ghost_mask.filter(ImageFilter.BLUR)
 
         return Image.composite(all_ghost_image, transparent_img, blur_mask)
+
+
+def identify_faces(img: Image.Image) -> [(int, int, int, int)]:
+    img_data = np.array(img)
+    return face_recognition.face_locations(img_data)
+
+
+class FaceIdentifyEffect(ImageEffect):
+
+    def __init__(self):
+        super().__init__()
+
+    def process_image(self, img: Image.Image) -> Image.Image:
+        draw = ImageDraw.Draw(img)
+
+        face_locations = identify_faces(img)
+
+        for face_location in face_locations:
+
+            # Print the location of each face in this image
+            top, right, bottom, left = face_location
+            print(f'A face is located @ {top}, {left}, {bottom}, {right}')
+
+            # using the bounds of the face, draw a red box around it!
+            draw.rectangle([(left, top), (right, bottom)],
+                           None, (255, 0, 0), 1)
+
+        return img

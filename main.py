@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from skimage.transform import swirl
 
-from lib.effect import GhostEffect
+from lib.effect import GhostEffect, FaceIdentifyEffect
 
 
 def main():
@@ -33,10 +33,9 @@ def main():
 
     if args.effect == "identify-face":
         print('processing the image to identify the faces!')
-        image = face_recognition.load_image_file(input_file_path)
-        face_locations = face_recognition.face_locations(image)
-
-        result = identify_faces(image, face_locations)
+        im = Image.open(input_file_path)
+        image_processor = FaceIdentifyEffect()
+        result = image_processor.process_image(im)
     elif args.effect == "swirl":
         print('processing for swirl effect')
         image = face_recognition.load_image_file(input_file_path)
@@ -52,23 +51,6 @@ def main():
 
     # write to the output file
     result.save(output_file, "PNG")
-
-
-def identify_faces(img: np.array, faces: [(int, int, int, int)]) -> Image.Image:
-    im = Image.fromarray(img)
-    draw = ImageDraw.Draw(im)
-
-    for face_location in faces:
-
-        # Print the location of each face in this image
-        top, right, bottom, left = face_location
-        print("A face is located at pixel location Top: {}, Left: {}, Bottom: {}, Right: {}".format(top, left, bottom, right))
-        
-        # using the bounds of the face, draw a red box around it!
-        draw.rectangle([(left, top), (right, bottom)], None, (255, 0, 0), 1)
-
-    return im
-
 
 def swirl_faces(img: np.array, faces) -> Image.Image:
 
