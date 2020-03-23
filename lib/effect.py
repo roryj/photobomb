@@ -1,11 +1,12 @@
 import math
 import os
+import random
 from abc import abstractmethod
-
-from PIL import Image, ImageDraw, ImageFilter
 
 import face_recognition
 import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
+from skimage.transform import swirl
 
 
 class IllegalStateException(Exception):
@@ -82,11 +83,6 @@ class GhostEffect(ImageEffect):
         return Image.composite(all_ghost_image, transparent_img, blur_mask)
 
 
-def identify_faces(img: Image.Image) -> [(int, int, int, int)]:
-    img_data = np.array(img)
-    return face_recognition.face_locations(img_data)
-
-
 class FaceIdentifyEffect(ImageEffect):
 
     def __init__(self):
@@ -95,7 +91,8 @@ class FaceIdentifyEffect(ImageEffect):
     def process_image(self, img: Image.Image) -> Image.Image:
         draw = ImageDraw.Draw(img)
 
-        face_locations = identify_faces(img)
+        img_data = np.array(img)
+        face_locations = face_recognition.face_locations(img_data)
 
         for face_location in face_locations:
 
@@ -108,3 +105,98 @@ class FaceIdentifyEffect(ImageEffect):
                            None, (255, 0, 0), 1)
 
         return img
+
+
+class SwirlFaceEffect(ImageEffect):
+    def __init__(self, swirl_strength=5):
+        self.__swirl_strength = swirl_strength
+        super().__init__()
+
+    def process_image(self, img: Image.Image) -> Image.Image:
+
+        img_data = np.array(img)
+        face_locations = face_recognition.face_locations(img_data)
+
+        for face_location in face_locations:
+
+            # Print the location of each face in this image
+            top, right, bottom, left = face_location
+            print(f'A face is located @ {top}, {left}, {bottom}, {right}')
+
+            # create a new image based on the current face
+            face = Image.fromarray(img_data[top:bottom, left:right])
+
+            # swirl the face
+            processed_face = self.__swirl_rect(face, self.__swirl_strength)
+            # add some alpha to the swirled image to make it less opaque
+            processed_face.putalpha(100)
+            # add a little bit of blur so that it is not so perfectly swirled
+            processed_face = processed_face.filter(ImageFilter.BLUR)
+
+            # merge the face with the original image
+            img.paste(processed_face, (left, top, right, bottom))
+
+        return img
+
+    def __swirl_rect(self, img: Image.Image, swirl_strength: int) -> Image.Image:
+        # create a copy so that the orignal is not changed
+        # not necessarily needed, but does avoid weird side effects
+        to_swirl = img.copy()
+
+        left = 0
+        top = 0
+        bottom = to_swirl.height - 1
+        right = to_swirl.width - 1
+
+        if bottom > right:
+            radius = ((right - left) / 2) - 8
+        else:
+            radius = ((bottom - top) / 2) - 8
+
+        centerx = int(right / 2)
+        centery = int(bottom / 2)
+
+        for x in range(left, right):
+            for y in range(top, bottom):
+                # 1) convert to u,v space
+                u = x - centerx
+                v = y - centery
+
+                # if w are at the center point of the swirl, do nothing
+                if u == 0 and v == 0:
+                    continue
+
+                # 2) get the distance from pixel to the center and the angle
+                # c = sqrt(u^2 + v^2)
+                # thanks pythagoreous
+                c = math.sqrt(math.pow(u, 2) + math.pow(v, 2))
+                pixel_angle = math.atan2(v, u)
+
+                # 3) figure out if we should apply the swirl
+                swirl_amount = 1 - (c / radius)
+                if swirl_amount <= 0:
+                    continue
+
+                # 3) find the angle to move the current pixel to. For pixels
+                # closer to the centre, we want them to be more manipulated
+                # (which is what the swirl amount is for), further pixels from
+                # the centre should be not swirled as much
+                twist_angle = (((random.randint(98, 102) / 100)
+                               * swirl_strength)
+                               * swirl_amount
+                               * math.pi * 2)
+
+                # 4) add the angle to twist to the current angle where the
+                # pixel is located from centre
+                pixel_angle += twist_angle
+
+                # 5) convert back to standard x,y coordinates
+                new_x = math.cos(pixel_angle) * c
+                new_y = math.sin(pixel_angle) * c
+
+                # 6) update the current x,y pixel to have the RGB values of
+                # the new calculated pixel based on the above math
+                new_pixel = to_swirl.getpixel((new_x, new_y))
+                to_swirl.putpixel((x, y), new_pixel)
+
+        return to_swirl
