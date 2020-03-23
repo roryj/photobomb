@@ -90,7 +90,7 @@ def swirl_faces(img: np.array, faces) -> Image.Image:
     return im
 
 
-def swirl(img, strength):
+def swirl(img: Image.Image, strength: int) -> Image.Image:
 
     # create a copy so that the orignal is not changed
     # not necessarily needed, but does avoid weird side effects
