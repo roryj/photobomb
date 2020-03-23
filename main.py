@@ -7,6 +7,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 from skimage.transform import swirl
 
+from lib.effect import GhostEffect
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -43,61 +45,13 @@ def main():
         result = swirl_faces(image, face_locations)
     elif args.effect == "ghost":
         im = Image.open(input_file_path)
-        result = ghost(im)
+        image_processor = GhostEffect()
+        result = image_processor.process_image(im)
     else:
         pass
 
     # write to the output file
     result.save(output_file, "PNG")
-
-
-def ghost(img: Image.Image) -> Image.Image:
-    """
-    for this, we need to:
-        1. Create an all blank image the size of the passed in image
-        2. Paste onto it all the ghost images we want
-        3. Create a mask that is all blank, white where we want the image
-        4. Composite ghost sheet onto OG image with mask
-        5. ...
-        6. profit?
-    """
-
-    transparent_img = img.convert("RGBA")
-
-    all_ghost_image = Image.new("RGBA", img.size, (255, 255, 255, 0))
-
-    # load ghost image
-    ghost = Image.open("/Users/roryjacob/develop/photobomb/resources/ghost_man.webp")
-    g_width, g_height = ghost.size
-
-    # find a spot to put a ghost:
-    # for now put it in the middle
-    left = math.floor((img.width / 2)) - math.floor((g_width/2))
-    top = 10
-    right = left + ghost.width
-    bottom = top + ghost.height
-
-    # create the base ghost image
-    all_ghost_image.paste(ghost, (left, top, right, bottom))
-
-    # # Create mask that has the same setup
-    ghost_mask = Image.new("L", img.size, 0)
-    # ghost_draw = ImageDraw.Draw(ghost_mask)
-
-    for x in range(left, right):
-        for y in range(top, bottom):
-            r, g, b, a = all_ghost_image.getpixel((x, y))
-
-            if a == 0:
-                continue
-
-            ghost_mask.putpixel((x, y), 150)
-
-    # return ghost_mask
-
-    blur_mask = ghost_mask.filter(ImageFilter.BLUR)
-
-    return Image.composite(all_ghost_image, transparent_img, ghost_mask)
 
 
 def identify_faces(img: np.array, faces: [(int, int, int, int)]) -> Image.Image:
@@ -200,6 +154,7 @@ def swirl(img: Image.Image, strength: int) -> Image.Image:
             to_swirl.putpixel((x, y), new_pixel)
 
     return to_swirl
+
 
 if __name__ == "__main__":
     main()
