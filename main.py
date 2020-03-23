@@ -1,53 +1,47 @@
 import argparse
-import math
-import random
 
-import face_recognition
-import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
-from skimage.transform import swirl
+from PIL import Image
 
-from lib.effect import GhostEffect, FaceIdentifyEffect, SwirlFaceEffect
+from lib.effect import (FaceIdentifyEffect, GhostEffect, ImageEffect,
+                        SwirlFaceEffect)
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="Some spooky ass photobombing")
     parser.add_argument("--input-file",
-        help="the full path to the input image file",
-        required=True)
+                        help="the full path to the input image file",
+                        required=True)
     parser.add_argument("--output-file",
-        help="the name of the output file",
-        default="result.png")
+                        help="the name of the output file",
+                        default="result.png")
     parser.add_argument("--effect",
-        help="the output effect on the image",
-        choices=["identify-face", "swirl", "ghost", "random"],
-        default="swirl")
+                        help="the output effect on the image",
+                        choices=["identify-face", "swirl", "ghost", "random"],
+                        default="swirl")
 
     args = parser.parse_args()
 
     input_file_path = args.input_file
     output_file = args.output_file
 
+    img = Image.open(input_file_path)
+    image_processor: ImageEffect
     result: Image.Image
 
     if args.effect == "identify-face":
         print('processing the image to identify the faces!')
-        im = Image.open(input_file_path)
         image_processor = FaceIdentifyEffect()
-        result = image_processor.process_image(im)
     elif args.effect == "swirl":
         print('processing for swirl effect')
-        im = Image.open(input_file_path)
         image_processor = SwirlFaceEffect(5)
-        result = image_processor.process_image(im)
     elif args.effect == "ghost":
-        im = Image.open(input_file_path)
+        print('processing for ghost effect')
         image_processor = GhostEffect()
-        result = image_processor.process_image(im)
     else:
-        pass
+        raise Exception(f'the effect {args.effect} is currently unsupported')
 
+    result = image_processor.process_image(img)
     # write to the output file
     result.save(output_file, "PNG")
 

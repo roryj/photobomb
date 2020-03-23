@@ -19,7 +19,7 @@ class ImageEffect(object):
         super().__init__()
 
     @abstractmethod
-    def process_image(self, img: Image.Image) -> Image.Image: 
+    def process_image(self, img: Image.Image) -> Image.Image:
         raise NotImplementedError
 
 
