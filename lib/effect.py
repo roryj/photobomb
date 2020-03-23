@@ -53,6 +53,8 @@ class GhostEffect(ImageEffect):
 
         all_ghost_image = Image.new("RGBA", img.size, (255, 255, 255, 0))
 
+        # TODO: This should not just take the first ghost image, but take
+        # some randome number and smartly put them on the image
         ghost = self.__ghost_images[0]
         g_width, g_height = ghost.size
 
