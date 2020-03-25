@@ -123,8 +123,6 @@ class SwirlFaceEffect(ImageEffect):
         img = context.img
 
         for face_location in context.face_locations:
-
-            # Print the location of each face in this image
             top, right, bottom, left = face_location
 
             # create a new image based on the current face
