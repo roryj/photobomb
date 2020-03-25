@@ -4,12 +4,22 @@ import random
 from abc import abstractmethod
 
 import numpy as np
-from lib.detection import find_faces_from_array, find_faces_from_image
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image, ImageDraw, ImageFilter
 
 
 class IllegalStateException(Exception):
     pass
+
+
+class ImageProcessingContext(object):
+    def __init__(self,
+                 img: Image.Image,
+                 img_data: np.array,
+                 face_locations: [(int, int, int, int)]):
+        self.img = img
+        self.img_data = img_data
+        self.face_locations = face_locations
+        super().__init__()
 
 
 class ImageEffect(object):
@@ -18,7 +28,7 @@ class ImageEffect(object):
         super().__init__()
 
     @abstractmethod
-    def process_image(self, img: Image.Image) -> Image.Image:
+    def process_image(self, context: ImageProcessingContext) -> Image.Image:
         raise NotImplementedError
 
 
@@ -37,7 +47,7 @@ class GhostEffect(ImageEffect):
 
         super().__init__()
 
-    def process_image(self, img: Image.Image):
+    def process_image(self, context: ImageProcessingContext):
         """
         for this, we need to:
             1. Create an all blank image the size of the passed in image
@@ -47,6 +57,7 @@ class GhostEffect(ImageEffect):
             5. ...
             6. profit?
         """
+        img = context.img
 
         transparent_img = img.convert("RGBA")
 
@@ -89,12 +100,11 @@ class FaceIdentifyEffect(ImageEffect):
     def __init__(self):
         super().__init__()
 
-    def process_image(self, img: Image.Image) -> Image.Image:
+    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+        img = context.img
         draw = ImageDraw.Draw(img)
 
-        face_locations = find_faces_from_image(img)
-
-        for face_location in face_locations:
+        for face_location in context.face_locations:
             top, right, bottom, left = face_location
 
             # using the bounds of the face, draw a red box around it!
@@ -109,18 +119,16 @@ class SwirlFaceEffect(ImageEffect):
         self.__swirl_strength = swirl_strength
         super().__init__()
 
-    def process_image(self, img: Image.Image) -> Image.Image:
+    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+        img = context.img
 
-        img_data = np.array(img)
-        face_locations = find_faces_from_array(img_data)
-
-        for face_location in face_locations:
+        for face_location in context.face_locations:
 
             # Print the location of each face in this image
             top, right, bottom, left = face_location
 
             # create a new image based on the current face
-            face = Image.fromarray(img_data[top:bottom, left:right])
+            face = Image.fromarray(context.img_data[top:bottom, left:right])
 
             # swirl the face
             processed_face = self.__swirl_rect(face, self.__swirl_strength)
