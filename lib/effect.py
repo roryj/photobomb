@@ -144,10 +144,8 @@ class SwirlFaceEffect(ImageEffect):
         bottom = to_swirl.height - 1
         right = to_swirl.width - 1
 
-        if bottom > right:
-            radius = ((right - left) / 2) - 8
-        else:
-            radius = ((bottom - top) / 2) - 8
+        semimajor_axis = ((bottom - top) / 2)
+        semiminor_axis = ((right - left) / 2)
 
         centerx = int(right / 2)
         centery = int(bottom / 2)
@@ -166,10 +164,14 @@ class SwirlFaceEffect(ImageEffect):
                 # c = sqrt(u^2 + v^2)
                 # thanks pythagoreous
                 c = math.sqrt(math.pow(u, 2) + math.pow(v, 2))
-                pixel_angle = math.atan2(v, u)
+                theta_radians = math.atan2(v, u)
+                a = semiminor_axis # horizontal axis
+                b = semimajor_axis # vertical axis
+                # https://math.stackexchange.com/questions/432902/how-to-get-the-radius-of-an-ellipse-at-a-specific-angle-by-knowing-its-semi-majo
+                ellipse_radius = (a * b) / math.sqrt( (a * a) * (np.sin(theta_radians) *  np.sin(theta_radians)) + (b * b) * (np.cos(theta_radians) *  np.cos(theta_radians)))
 
                 # 3) figure out if we should apply the swirl
-                swirl_amount = 1 - (c / radius)
+                swirl_amount = 1 - (c / ellipse_radius)
                 if swirl_amount <= 0:
                     continue
 
