@@ -186,11 +186,11 @@ class SwirlFaceEffect(ImageEffect):
 
                 # 4) add the angle to twist to the current angle where the
                 # pixel is located from centre
-                pixel_angle += twist_angle
+                theta_radians += twist_angle
 
                 # 5) convert back to standard x,y coordinates
-                new_x = math.cos(pixel_angle) * c
-                new_y = math.sin(pixel_angle) * c
+                new_x = math.cos(theta_radians) * c
+                new_y = math.sin(theta_radians) * c
 
                 # 6) update the current x,y pixel to have the RGB values of
                 # the new calculated pixel based on the above math
