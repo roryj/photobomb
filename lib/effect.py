@@ -145,7 +145,7 @@ class SwirlFaceEffect(ImageEffect):
             # add some alpha to the swirled image to make it less opaque
             processed_face.putalpha(100)
             # add a little bit of blur so that it is not so perfectly swirled
-            processed_face = processed_face.filter(ImageFilter.BLUR)
+            processed_face = processed_face.filter(ImageFilter.GaussianBlur(2))
 
             # merge the face with the original image
             img.paste(processed_face, (left, top, right, bottom))
