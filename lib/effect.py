@@ -144,6 +144,7 @@ class SwirlFaceEffect(ImageEffect):
         # create a copy so that the orignal is not changed
         # not necessarily needed, but does avoid weird side effects
         to_swirl = img.copy()
+        ellipse_mask = Image.new("L", to_swirl.size, 0)
 
         left = 0
         top = 0
@@ -203,4 +204,9 @@ class SwirlFaceEffect(ImageEffect):
                 new_pixel = img.getpixel((new_x, new_y))
                 to_swirl.putpixel((x, y), new_pixel)
 
-        return to_swirl
+        swirl_copy = to_swirl.copy()
+        swirl_copy = swirl_copy.filter(ImageFilter.GaussianBlur(2))
+
+        mask_blur = ellipse_mask.filter(ImageFilter.GaussianBlur(2))
+
+        return Image.composite(to_swirl, swirl_copy, mask_blur)
