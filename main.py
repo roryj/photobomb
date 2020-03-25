@@ -34,7 +34,7 @@ def main():
         image_processor = FaceIdentifyEffect()
     elif args.effect == "swirl":
         print('processing for swirl effect')
-        image_processor = SwirlFaceEffect(5)
+        image_processor = SwirlFaceEffect(1)
     elif args.effect == "ghost":
         print('processing for ghost effect')
         image_processor = GhostEffect()
