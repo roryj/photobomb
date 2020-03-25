@@ -102,6 +102,12 @@ class FaceIdentifyEffect(ImageEffect):
             top, right, bottom, left = face_location
             print(f'A face is located @ {top}, {left}, {bottom}, {right}')
 
+            # expand out face locations
+            top -= 10
+            top = max(0, top)
+            bottom += 15
+            bottom = min(img.height, bottom)
+
             # using the bounds of the face, draw a red box around it!
             draw.rectangle([(left, top), (right, bottom)],
                            None, (255, 0, 0), 1)
@@ -124,6 +130,12 @@ class SwirlFaceEffect(ImageEffect):
             # Print the location of each face in this image
             top, right, bottom, left = face_location
             print(f'A face is located @ {top}, {left}, {bottom}, {right}')
+
+            # expand out face locations
+            top -= 10
+            top = max(0, top)
+            bottom += 15
+            bottom = min(img.height, bottom)
 
             # create a new image based on the current face
             face = Image.fromarray(img_data[top:bottom, left:right])
