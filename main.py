@@ -3,7 +3,8 @@ import argparse
 from PIL import Image
 
 from lib.effect import (FaceIdentifyEffect, GhostEffect, ImageEffect,
-                        SwirlFaceEffect, ImageProcessingContext)
+                        SwirlFaceEffect, SaturationEffect,
+                        ImageProcessingContext)
 from lib.detection import find_faces_from_array
 
 import numpy as np
@@ -22,7 +23,7 @@ def main():
                         nargs="+",
                         help="""the effects to apply on an image. Will be
                         processed in order they are defined.
-                        One of -> [identify-face, swirl, ghost]""",
+                        One of -> [identify-face, swirl, ghost, saturation]""",
                         required=True)
 
     args = parser.parse_args()
@@ -47,6 +48,9 @@ def main():
         elif effect == "ghost":
             print('ghost friend effect added')
             image_processor = GhostEffect()
+        elif effect == "saturation":
+            print('saturation effect added')
+            image_processor = SaturationEffect(0.5)
         else:
             raise Exception(f'the effect {effect} is currently unsupported')
 

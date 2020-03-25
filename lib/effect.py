@@ -4,7 +4,7 @@ import random
 from abc import abstractmethod
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
 
 class IllegalStateException(Exception):
@@ -112,6 +112,17 @@ class FaceIdentifyEffect(ImageEffect):
                            None, (255, 0, 0), 1)
 
         return img
+
+
+class SaturationEffect(ImageEffect):
+
+    def __init__(self, saturation_percentage):
+        self.__saturation_percentage = saturation_percentage
+        super().__init__()
+
+    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+        enhancer = ImageEnhance.Contrast(context.img)
+        return enhancer.enhance(self.__saturation_percentage)
 
 
 class SwirlFaceEffect(ImageEffect):
