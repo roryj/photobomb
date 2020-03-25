@@ -198,7 +198,7 @@ class SwirlFaceEffect(ImageEffect):
 
                 # 6) update the current x,y pixel to have the RGB values of
                 # the new calculated pixel based on the above math
-                new_pixel = to_swirl.getpixel((new_x, new_y))
+                new_pixel = img.getpixel((new_x, new_y))
                 to_swirl.putpixel((x, y), new_pixel)
 
         return to_swirl
