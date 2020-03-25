@@ -50,7 +50,7 @@ def main():
             image_processor = GhostEffect()
         elif effect == "saturation":
             print('saturation effect added')
-            image_processor = SaturationEffect(0.5)
+            image_processor = SaturationEffect(0.7)
         else:
             raise Exception(f'the effect {effect} is currently unsupported')
 
