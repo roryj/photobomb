@@ -18,13 +18,12 @@ def main():
     parser.add_argument("--output-file",
                         help="the name of the output file",
                         default="result.png")
-    parser.add_argument("--effect",
-                        help="the output effect on the image",
-                        choices=["identify-face", "swirl", "ghost", "random"],
-                        default="swirl")
     parser.add_argument("--effects",
-                        help="the output effect on the image",
-                        default="swirl")
+                        nargs="+",
+                        help="""the effects to apply on an image. Will be
+                        processed in order they are defined.
+                        One of -> [identify-face, swirl, ghost]""",
+                        required=True)
 
     args = parser.parse_args()
 
@@ -32,24 +31,36 @@ def main():
     output_file = args.output_file
 
     img = Image.open(input_file_path)
-    image_processor: ImageEffect
+    image_processors = []
     result: Image.Image
 
     context = create_context_from_image(img)
 
-    if args.effect == "identify-face":
-        print('processing the image to identify the faces!')
-        image_processor = FaceIdentifyEffect()
-    elif args.effect == "swirl":
-        print('processing for swirl effect')
-        image_processor = SwirlFaceEffect(1)
-    elif args.effect == "ghost":
-        print('processing for ghost effect')
-        image_processor = GhostEffect()
-    else:
-        raise Exception(f'the effect {args.effect} is currently unsupported')
+    for effect in args.effects:
+        image_processor: ImageEffect
+        if effect == "identify-face":
+            print('identify face effect added')
+            image_processor = FaceIdentifyEffect()
+        elif effect == "swirl":
+            print('swirl effect added')
+            image_processor = SwirlFaceEffect(1)
+        elif effect == "ghost":
+            print('ghost friend effect added')
+            image_processor = GhostEffect()
+        else:
+            raise Exception(f'the effect {effect} is currently unsupported')
 
-    result = image_processor.process_image(context)
+        image_processors.append(image_processor)
+
+    if len(image_processors) < 1:
+        raise Exception(f'you must choose at least one type of image effect')
+
+    for p in image_processors:
+        print(f'applying effect: {p.__class__.__name__}')
+        result = p.process_image(context)
+        context.img = result
+        context.img_data = np.array(result)
+
     # write to the output file
     result.save(output_file, "PNG")
 
