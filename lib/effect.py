@@ -3,10 +3,9 @@ import os
 import random
 from abc import abstractmethod
 
-import face_recognition
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
-from skimage.transform import swirl
+from lib.detection import find_faces_from_array, find_faces_from_image
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
 
 class IllegalStateException(Exception):
@@ -93,20 +92,10 @@ class FaceIdentifyEffect(ImageEffect):
     def process_image(self, img: Image.Image) -> Image.Image:
         draw = ImageDraw.Draw(img)
 
-        img_data = np.array(img)
-        face_locations = face_recognition.face_locations(img_data)
+        face_locations = find_faces_from_image(img)
 
         for face_location in face_locations:
-
-            # Print the location of each face in this image
             top, right, bottom, left = face_location
-            print(f'A face is located @ {top}, {left}, {bottom}, {right}')
-
-            # expand out face locations
-            top -= 10
-            top = max(0, top)
-            bottom += 15
-            bottom = min(img.height, bottom)
 
             # using the bounds of the face, draw a red box around it!
             draw.rectangle([(left, top), (right, bottom)],
@@ -123,19 +112,12 @@ class SwirlFaceEffect(ImageEffect):
     def process_image(self, img: Image.Image) -> Image.Image:
 
         img_data = np.array(img)
-        face_locations = face_recognition.face_locations(img_data)
+        face_locations = find_faces_from_array(img_data)
 
         for face_location in face_locations:
 
             # Print the location of each face in this image
             top, right, bottom, left = face_location
-            print(f'A face is located @ {top}, {left}, {bottom}, {right}')
-
-            # expand out face locations
-            top -= 10
-            top = max(0, top)
-            bottom += 15
-            bottom = min(img.height, bottom)
 
             # create a new image based on the current face
             face = Image.fromarray(img_data[top:bottom, left:right])
