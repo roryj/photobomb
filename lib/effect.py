@@ -63,20 +63,12 @@ class GhostEffect(ImageEffect):
 
         all_ghost_image = Image.new("RGBA", img.size, (255, 255, 255, 0))
 
-        # TODO: This should not just take the first ghost image, but take
-        # some randome number and smartly put them on the image
-        ghost = self.__ghost_images[0]
-        g_width, g_height = ghost.size
+        for (ghost_image, left, top) in self.__get_ghost_locations(img):
+            right = left + ghost_image.width
+            bottom = top + ghost_image.height
 
-        # find a spot to put a ghost:
-        # for now put it in the middle
-        left = math.floor((img.width / 2)) - math.floor((g_width/2))
-        top = 10
-        right = left + ghost.width
-        bottom = top + ghost.height
-
-        # create the base ghost image
-        all_ghost_image.paste(ghost, (left, top, right, bottom))
+            # create the base ghost image
+            all_ghost_image.paste(ghost_image, (left, top, right, bottom))
 
         # # Create mask that has the same setup
         ghost_mask = Image.new("L", img.size, 0)
@@ -93,6 +85,31 @@ class GhostEffect(ImageEffect):
         blur_mask = ghost_mask.filter(ImageFilter.BLUR)
 
         return Image.composite(all_ghost_image, transparent_img, blur_mask)
+
+    def __get_ghost_locations(self, img: Image.Image) -> [(Image.Image, int, int)]:
+        """
+        Get all locations to put a ghost image
+
+        For a given input image, determine how many ghost images to put on the
+        image, and gives their top+left x,y coordinates
+
+        Parameters:
+        img (Image.Image): The image we want to add ghosts too
+
+        Returns:
+        [(Image.Image, int, int)]: list of ghosts including the (x,y)
+                                   coordinates for the top+left location to
+                                   place it on
+                                   on the original image
+        """
+        ghost = self.__ghost_images[0]
+        g_width, g_height = ghost.size
+
+        result = []
+        left = math.floor(img.width / 2) - math.floor((g_width/2))
+        top = 10
+        result.append((ghost, left, top))
+        return result
 
 
 class FaceIdentifyEffect(ImageEffect):
