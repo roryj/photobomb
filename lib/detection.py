@@ -60,7 +60,7 @@ def find_faces_from_array(img_data: np.array) -> List[FaceMetadata]:
             img_data, [(top, right, bottom, left)]
         )
 
-        if len(features) != 0:
+        if len(features) != 1:
             raise Exception(f"unexpected number of faces found: {len(features)}")
         result.append(FaceMetadata((top, right, bottom, left), features[0]))
 
