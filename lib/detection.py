@@ -1,6 +1,24 @@
 import face_recognition
 from PIL import Image
 import numpy as np
+from typing import List
+
+
+class FaceMetadata(object):
+    def __init__(self, face_location, facial_features):
+        self.__face_location = face_location
+        self.__facial_features = facial_features
+
+        super().__init__()
+
+    def get_bounding_box(self) -> (int, int, int, int):
+        return self.__face_location
+
+    def get_facial_feature_points(self, facial_feature: str) -> [(int, int)]:
+        if facial_feature not in self.__face_features:
+            raise Exception(f'the feature {facial_feature} was not detected')
+
+        return self.__facial_features[facial_feature]
 
 
 def find_faces_from_image(img: Image.Image) -> [(int, int, int, int)]:
@@ -8,7 +26,7 @@ def find_faces_from_image(img: Image.Image) -> [(int, int, int, int)]:
     return find_faces_from_array(img_data)
 
 
-def find_faces_from_array(img_data: np.array) -> [(int, int, int, int)]:
+def find_faces_from_array(img_data: np.array) -> List[FaceMetadata]:
     faces = face_recognition.face_locations(img_data)
 
     result = []
@@ -23,6 +41,9 @@ def find_faces_from_array(img_data: np.array) -> [(int, int, int, int)]:
         bottom += 15
         bottom = min(len(img_data), bottom)
 
-        result.append((top, right, bottom, left))
+        features = face_recognition.face_landmarks(img_data,
+                                                   [(top, right, bottom, left)])
+
+        result.append(FaceMetadata((top, right, bottom, left), features))
 
     return result

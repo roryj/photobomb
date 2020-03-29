@@ -5,6 +5,8 @@ from abc import abstractmethod
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+from lib.detection import FaceMetadata
+from typing import List
 
 
 class IllegalStateException(Exception):
@@ -15,10 +17,10 @@ class ImageProcessingContext(object):
     def __init__(self,
                  img: Image.Image,
                  img_data: np.array,
-                 face_locations: [(int, int, int, int)]):
+                 faces: List[FaceMetadata]):
         self.img = img
         self.img_data = img_data
-        self.face_locations = face_locations
+        self.faces = faces
         super().__init__()
 
 
@@ -151,8 +153,8 @@ class FaceIdentifyEffect(ImageEffect):
         img = context.img
         draw = ImageDraw.Draw(img)
 
-        for face_location in context.face_locations:
-            top, right, bottom, left = face_location
+        for face in context.faces:
+            top, right, bottom, left = face.get_bounding_box()
 
             # using the bounds of the face, draw a red box around it!
             draw.rectangle([(left, top), (right, bottom)],
@@ -180,8 +182,8 @@ class SwirlFaceEffect(ImageEffect):
     def process_image(self, context: ImageProcessingContext) -> Image.Image:
         img = context.img
 
-        for face_location in context.face_locations:
-            top, right, bottom, left = face_location
+        for face in context.faces:
+            top, right, bottom, left = face.get_bounding_box()
 
             # create a new image based on the current face
             face = Image.fromarray(context.img_data[top:bottom, left:right])
