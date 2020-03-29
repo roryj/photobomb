@@ -239,10 +239,15 @@ class SwirlFaceEffect(ImageEffect):
                 # thanks pythagoreous
                 c = math.sqrt(math.pow(u, 2) + math.pow(v, 2))
                 theta_radians = math.atan2(v, u)
-                a = semiminor_axis # horizontal axis
-                b = semimajor_axis # vertical axis
+                a = semiminor_axis  # horizontal axis
+                b = semimajor_axis  # vertical axis
                 # https://math.stackexchange.com/questions/432902/how-to-get-the-radius-of-an-ellipse-at-a-specific-angle-by-knowing-its-semi-majo
-                ellipse_radius = (a * b) / math.sqrt( (a * a) * (np.sin(theta_radians) *  np.sin(theta_radians)) + (b * b) * (np.cos(theta_radians) *  np.cos(theta_radians)))
+                ellipse_radius = (a * b) / math.sqrt((a * a) *
+                                                     (np.sin(theta_radians) *
+                                                     np.sin(theta_radians)) +
+                                                     (b * b) *
+                                                     (np.cos(theta_radians) *
+                                                     np.cos(theta_radians)))
 
                 # 3) figure out if we should apply the swirl
                 swirl_amount = 1 - (c / ellipse_radius)
