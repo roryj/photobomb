@@ -160,6 +160,13 @@ class FaceIdentifyEffect(ImageEffect):
             draw.rectangle([(left, top), (right, bottom)],
                            None, (255, 0, 0), 1)
 
+            mouth = face.get_mouth_points()
+            draw.line(mouth, fill=(255, 0, 0, 64), width=1)
+
+            left_eye, right_eye = face.get_eye_points()
+            draw.line(left_eye, fill=(255, 0, 0, 64), width=1)
+            draw.line(right_eye, fill=(255, 0, 0, 64), width=1)
+
         return img
 
 
