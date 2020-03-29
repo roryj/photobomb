@@ -14,6 +14,20 @@ class FaceMetadata(object):
     def get_bounding_box(self) -> (int, int, int, int):
         return self.__face_location
 
+    def get_eye_points(self) -> [[(int, int)]]:
+        eyes = []
+        eyes.append(self.get_facial_feature_points('left_eye'))
+        eyes.append(self.get_facial_feature_points('right_eye'))
+        return eyes
+
+    def get_right_eye_points(self) -> [(int, int)]:
+        return self.get_facial_feature_points("right_eye")
+
+    def get_mouth_points(self) -> [(int, int)]:
+        top_lip = self.get_facial_feature_points('top_lip')
+        bottom_lip = self.get_facial_feature_points('bottom_lip')
+        return top_lip + bottom_lip
+
     def get_facial_feature_points(self, facial_feature: str) -> [(int, int)]:
         if facial_feature not in self.__facial_features:
             raise Exception(f'the feature {facial_feature} was not detected')
