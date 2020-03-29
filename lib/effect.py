@@ -37,13 +37,17 @@ class GhostEffect(ImageEffect):
     def __init__(self, ghost_image_paths="./resources/ghosts/"):
         self.__ghost_images = []
 
+        max_ghost_width = 0
         for file in os.listdir(ghost_image_paths):
             full_path = os.path.join(ghost_image_paths, file)
             img = Image.open(full_path)
+            max_ghost_width = max(max_ghost_width, img.width)
             self.__ghost_images.append(img)
 
         if len(self.__ghost_images) == 0:
             raise IllegalStateException(f'no images found in the path {ghost_image_paths}')
+
+        self.__max_ghost_width = max_ghost_width
 
         super().__init__()
 
@@ -73,8 +77,8 @@ class GhostEffect(ImageEffect):
         # # Create mask that has the same setup
         ghost_mask = Image.new("L", img.size, 0)
 
-        for x in range(left, right):
-            for y in range(top, bottom):
+        for x in range(0, ghost_mask.width):
+            for y in range(0, ghost_mask.height):
                 r, g, b, a = all_ghost_image.getpixel((x, y))
 
                 if a == 0:
@@ -102,13 +106,39 @@ class GhostEffect(ImageEffect):
                                    place it on
                                    on the original image
         """
-        ghost = self.__ghost_images[0]
-        g_width, g_height = ghost.size
+
+        # use the max ghost image width and the number of images to determine
+        # how many ghosts to place
+        num_ghosts_to_place = min(len(self.__ghost_images),
+                                  4,  # we dont want to overload the image with ghosts
+                                  math.floor(img.width/self.__max_ghost_width))
 
         result = []
-        left = math.floor(img.width / 2) - math.floor((g_width/2))
-        top = 10
-        result.append((ghost, left, top))
+        chosen_ghosts = set()
+        for i in range(num_ghosts_to_place):
+            while True:
+                ghost_index = random.randint(0, len(self.__ghost_images) - 1)
+
+                if str(ghost_index) not in chosen_ghosts:
+                    chosen_ghosts.add(str(ghost_index))
+                    break
+
+            ghost = self.__ghost_images[ghost_index]
+
+            # for the x location, we need to divide the main image width by
+            # the number of ghosts to get where to put the ghost, and then
+            # pick a random spot within that range
+            # ex: two ghosts (x is final ghost location):
+            # |           image           |
+            # | ghost range | ghost range |
+            # | x           |       x     |
+            min_ghost_x = (img.width / num_ghosts_to_place) * i
+            max_ghost_x = ((img.width / num_ghosts_to_place) * (i + 1) - 1) - ghost.width
+
+            left = random.randint(min_ghost_x, max_ghost_x)
+            top = random.randint(10, 30)
+            result.append((ghost, left, top))
+
         return result
 
 
