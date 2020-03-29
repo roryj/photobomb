@@ -1,7 +1,8 @@
-import face_recognition
-from PIL import Image
-import numpy as np
 from typing import List
+
+import face_recognition
+import numpy as np
+from PIL import Image
 
 
 class FaceMetadata(object):
@@ -16,21 +17,21 @@ class FaceMetadata(object):
 
     def get_eye_points(self) -> [[(int, int)]]:
         eyes = []
-        eyes.append(self.get_facial_feature_points('left_eye'))
-        eyes.append(self.get_facial_feature_points('right_eye'))
+        eyes.append(self.get_facial_feature_points("left_eye"))
+        eyes.append(self.get_facial_feature_points("right_eye"))
         return eyes
 
     def get_right_eye_points(self) -> [(int, int)]:
         return self.get_facial_feature_points("right_eye")
 
     def get_mouth_points(self) -> [(int, int)]:
-        top_lip = self.get_facial_feature_points('top_lip')
-        bottom_lip = self.get_facial_feature_points('bottom_lip')
+        top_lip = self.get_facial_feature_points("top_lip")
+        bottom_lip = self.get_facial_feature_points("bottom_lip")
         return top_lip + bottom_lip
 
     def get_facial_feature_points(self, facial_feature: str) -> [(int, int)]:
         if facial_feature not in self.__facial_features:
-            raise Exception(f'the feature {facial_feature} was not detected')
+            raise Exception(f"the feature {facial_feature} was not detected")
 
         return self.__facial_features[facial_feature]
 
@@ -47,7 +48,7 @@ def find_faces_from_array(img_data: np.array) -> List[FaceMetadata]:
 
     for face in faces:
         top, right, bottom, left = face
-        print(f'A face is located @ {top}, {left}, {bottom}, {right}')
+        print(f"A face is located @ {top}, {left}, {bottom}, {right}")
 
         # expand out face locations
         top -= 10
@@ -55,11 +56,12 @@ def find_faces_from_array(img_data: np.array) -> List[FaceMetadata]:
         bottom += 15
         bottom = min(len(img_data), bottom)
 
-        features = face_recognition.face_landmarks(img_data,
-                                                   [(top, right, bottom, left)])
+        features = face_recognition.face_landmarks(
+            img_data, [(top, right, bottom, left)]
+        )
 
         if len(features) != 0:
-            raise Exception(f'unexpected number of faces found: {len(features)}')
+            raise Exception(f"unexpected number of faces found: {len(features)}")
         result.append(FaceMetadata((top, right, bottom, left), features[0]))
 
     return result

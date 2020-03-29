@@ -2,29 +2,35 @@ import argparse
 
 from PIL import Image
 
-from lib.effect import (FaceIdentifyEffect, GhostEffect, ImageEffect,
-                        SwirlFaceEffect, SaturationEffect,
-                        ImageProcessingContext)
+from lib.effect import (
+    FaceIdentifyEffect,
+    GhostEffect,
+    ImageEffect,
+    SwirlFaceEffect,
+    SaturationEffect,
+    ImageProcessingContext,
+)
 from lib.detection import find_faces_from_array
 
 import numpy as np
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Some spooky ass photobombing")
-    parser.add_argument("--input-file",
-                        help="the full path to the input image file",
-                        required=True)
-    parser.add_argument("--output-file",
-                        help="the name of the output file",
-                        default="result.png")
-    parser.add_argument("--effects",
-                        nargs="+",
-                        help="""the effects to apply on an image. Will be
+    parser = argparse.ArgumentParser(description="Some spooky ass photobombing")
+    parser.add_argument(
+        "--input-file", help="the full path to the input image file", required=True
+    )
+    parser.add_argument(
+        "--output-file", help="the name of the output file", default="result.png"
+    )
+    parser.add_argument(
+        "--effects",
+        nargs="+",
+        help="""the effects to apply on an image. Will be
                         processed in order they are defined.
                         One of -> [identify-face, swirl, ghost, saturation]""",
-                        required=True)
+        required=True,
+    )
 
     args = parser.parse_args()
 
@@ -40,27 +46,27 @@ def main():
     for effect in args.effects:
         image_processor: ImageEffect
         if effect == "identify-face":
-            print('identify face effect added')
+            print("identify face effect added")
             image_processor = FaceIdentifyEffect()
         elif effect == "swirl":
-            print('swirl effect added')
+            print("swirl effect added")
             image_processor = SwirlFaceEffect(1)
         elif effect == "ghost":
-            print('ghost friend effect added')
+            print("ghost friend effect added")
             image_processor = GhostEffect()
         elif effect == "saturation":
-            print('saturation effect added')
+            print("saturation effect added")
             image_processor = SaturationEffect(0.7)
         else:
-            raise Exception(f'the effect {effect} is currently unsupported')
+            raise Exception(f"the effect {effect} is currently unsupported")
 
         image_processors.append(image_processor)
 
     if len(image_processors) < 1:
-        raise Exception(f'you must choose at least one type of image effect')
+        raise Exception(f"you must choose at least one type of image effect")
 
     for p in image_processors:
-        print(f'applying effect: {p.__class__.__name__}')
+        print(f"applying effect: {p.__class__.__name__}")
         result = p.process_image(context)
         context.img = result
         context.img_data = np.array(result)

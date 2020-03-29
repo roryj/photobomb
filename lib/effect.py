@@ -14,10 +14,7 @@ class IllegalStateException(Exception):
 
 
 class ImageProcessingContext(object):
-    def __init__(self,
-                 img: Image.Image,
-                 img_data: np.array,
-                 faces: List[FaceMetadata]):
+    def __init__(self, img: Image.Image, img_data: np.array, faces: List[FaceMetadata]):
         self.img = img
         self.img_data = img_data
         self.faces = faces
@@ -25,7 +22,6 @@ class ImageProcessingContext(object):
 
 
 class ImageEffect(object):
-
     def __init__(self):
         super().__init__()
 
@@ -35,7 +31,6 @@ class ImageEffect(object):
 
 
 class GhostEffect(ImageEffect):
-
     def __init__(self, ghost_image_paths="./resources/ghosts/"):
         self.__ghost_images = []
 
@@ -47,7 +42,9 @@ class GhostEffect(ImageEffect):
             self.__ghost_images.append(img)
 
         if len(self.__ghost_images) == 0:
-            raise IllegalStateException(f'no images found in the path {ghost_image_paths}')
+            raise IllegalStateException(
+                f"no images found in the path {ghost_image_paths}"
+            )
 
         self.__max_ghost_width = max_ghost_width
 
@@ -111,9 +108,11 @@ class GhostEffect(ImageEffect):
 
         # use the max ghost image width and the number of images to determine
         # how many ghosts to place
-        num_ghosts_to_place = min(len(self.__ghost_images),
-                                  4,  # we dont want to overload the image with ghosts
-                                  math.floor(img.width/self.__max_ghost_width))
+        num_ghosts_to_place = min(
+            len(self.__ghost_images),
+            4,  # we dont want to overload the image with ghosts
+            math.floor(img.width / self.__max_ghost_width),
+        )
 
         result = []
         chosen_ghosts = set()
@@ -135,7 +134,9 @@ class GhostEffect(ImageEffect):
             # | ghost range | ghost range |
             # | x           |       x     |
             min_ghost_x = (img.width / num_ghosts_to_place) * i
-            max_ghost_x = ((img.width / num_ghosts_to_place) * (i + 1) - 1) - ghost.width
+            max_ghost_x = (
+                (img.width / num_ghosts_to_place) * (i + 1) - 1
+            ) - ghost.width
 
             left = random.randint(min_ghost_x, max_ghost_x)
             top = random.randint(10, 30)
@@ -145,7 +146,6 @@ class GhostEffect(ImageEffect):
 
 
 class FaceIdentifyEffect(ImageEffect):
-
     def __init__(self):
         super().__init__()
 
@@ -157,8 +157,7 @@ class FaceIdentifyEffect(ImageEffect):
             top, right, bottom, left = face.get_bounding_box()
 
             # using the bounds of the face, draw a red box around it!
-            draw.rectangle([(left, top), (right, bottom)],
-                           None, (255, 0, 0), 1)
+            draw.rectangle([(left, top), (right, bottom)], None, (255, 0, 0), 1)
 
             mouth = face.get_mouth_points()
             draw.line(mouth, fill=(255, 0, 0, 64), width=1)
@@ -171,7 +170,6 @@ class FaceIdentifyEffect(ImageEffect):
 
 
 class SaturationEffect(ImageEffect):
-
     def __init__(self, saturation_percentage):
         self.__saturation_percentage = saturation_percentage
         super().__init__()
@@ -218,8 +216,8 @@ class SwirlFaceEffect(ImageEffect):
         bottom = to_swirl.height - 1
         right = to_swirl.width - 1
 
-        semimajor_axis = ((bottom - top) / 2)
-        semiminor_axis = ((right - left) / 2)
+        semimajor_axis = (bottom - top) / 2
+        semiminor_axis = (right - left) / 2
 
         centerx = int(right / 2)
         centery = int(bottom / 2)
@@ -242,12 +240,10 @@ class SwirlFaceEffect(ImageEffect):
                 a = semiminor_axis  # horizontal axis
                 b = semimajor_axis  # vertical axis
                 # https://math.stackexchange.com/questions/432902/how-to-get-the-radius-of-an-ellipse-at-a-specific-angle-by-knowing-its-semi-majo
-                ellipse_radius = (a * b) / math.sqrt((a * a) *
-                                                     (np.sin(theta_radians) *
-                                                     np.sin(theta_radians)) +
-                                                     (b * b) *
-                                                     (np.cos(theta_radians) *
-                                                     np.cos(theta_radians)))
+                ellipse_radius = (a * b) / math.sqrt(
+                    (a * a) * (np.sin(theta_radians) * np.sin(theta_radians))
+                    + (b * b) * (np.cos(theta_radians) * np.cos(theta_radians))
+                )
 
                 # 3) figure out if we should apply the swirl
                 swirl_amount = 1 - (c / ellipse_radius)
@@ -258,10 +254,12 @@ class SwirlFaceEffect(ImageEffect):
                 # closer to the centre, we want them to be more manipulated
                 # (which is what the swirl amount is for), further pixels from
                 # the centre should be not swirled as much
-                twist_angle = (((random.randint(98, 102) / 100)
-                               * swirl_strength)
-                               * swirl_amount
-                               * math.pi * 2)
+                twist_angle = (
+                    ((random.randint(98, 102) / 100) * swirl_strength)
+                    * swirl_amount
+                    * math.pi
+                    * 2
+                )
 
                 # 4) add the angle to twist to the current angle where the
                 # pixel is located from centre
