@@ -280,3 +280,46 @@ class SwirlFaceEffect(ImageEffect):
         mask_blur = ellipse_mask.filter(ImageFilter.GaussianBlur(2))
 
         return Image.composite(to_swirl, swirl_copy, mask_blur)
+
+
+class SketchyEyeEffect(ImageEffect):
+    def __init__(self):
+        super().__init__()
+
+    def process_image(self, context: ImageProcessingContext):
+
+        img = context.img
+        draw = ImageDraw.Draw(img)
+
+        for face in context.faces:
+
+            for eye in face.get_eye_points():
+                center_x, center_y, radius = self.__get_eye_dimensions(face.get_bounding_box(), eye)
+
+                draw.ellipse([(center_x - radius, center_y - radius),
+                             (center_x + radius, center_y + radius)],
+                             (0, 0, 0, 100))
+
+        return img
+
+    def __get_eye_dimensions(self,
+                             face_bounding_box: (int, int, int, int),
+                             eye_points: [(int, int)]) -> (int, int):
+        face_top, face_right, face_bottom, face_left = face_bounding_box
+
+        # find center of the each eye
+        min_x = face_right
+        max_x = face_left
+        min_y = face_bottom
+        max_y = face_top
+        for (x, y) in eye_points:
+            min_x = min(min_x, x)
+            max_x = max(max_x, x)
+            min_y = min(min_y, y)
+            max_y = max(max_y, y)
+
+        center_x = min_x + ((max_x - min_x)/2)
+        center_y = min_y + ((max_y - min_y)/2)
+        radius = max((max_x - min_x)/2, (max_y - min_y)/2)
+
+        return center_x, center_y, radius

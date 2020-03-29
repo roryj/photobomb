@@ -9,6 +9,7 @@ from lib.effect import (
     SwirlFaceEffect,
     SaturationEffect,
     ImageProcessingContext,
+    SketchyEyeEffect,
 )
 from lib.detection import find_faces_from_array
 
@@ -28,7 +29,7 @@ def main():
         nargs="+",
         help="""the effects to apply on an image. Will be
                         processed in order they are defined.
-                        One of -> [identify-face, swirl, ghost, saturation]""",
+                        One of -> [identify-face, swirl, ghost, saturation, eyes]""",
         required=True,
     )
 
@@ -57,6 +58,9 @@ def main():
         elif effect == "saturation":
             print("saturation effect added")
             image_processor = SaturationEffect(0.7)
+        elif effect == "eyes":
+            print("eye effect added")
+            image_processor = SketchyEyeEffect()
         else:
             raise Exception(f"the effect {effect} is currently unsupported")
 
