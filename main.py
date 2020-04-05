@@ -28,8 +28,10 @@ def main():
     )
     parser.add_argument(
         "--resize",
-        action='store_true',
-        help="whether to resize the processed image",
+        nargs="+",
+        help="""the width and height to size the resulting spooky image.
+        If no height is given, a height is calulated.
+        ex: --resize 200 40""",
         default=False,
     )
 
@@ -75,12 +77,14 @@ def main():
         context.img = result
         context.img_data = np.array(result)
 
-    if args.resize:
-        printer_dpi = 100
-        label_width_inches = 2
+    if len(args.resize) >= 1:
+        print(f'resizing image to {args.resize}')
+        new_width = int(args.resize[0])
 
-        new_width = printer_dpi * label_width_inches
-        new_height = math.ceil((new_width / result.width) * result.height)
+        if len(args.resize) >= 2:
+            new_height = args.resize[1]
+        else:
+            new_height = math.ceil((new_width / result.width) * result.height)
 
         result.thumbnail((new_width, new_height))
         # result = result.resize((new_width, new_height), resample=Image.ANTIALIAS)
