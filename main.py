@@ -1,19 +1,13 @@
 import argparse
-
-from PIL import Image
-
-from lib.effect import (
-    FaceIdentifyEffect,
-    GhostEffect,
-    ImageEffect,
-    SwirlFaceEffect,
-    SaturationEffect,
-    ImageProcessingContext,
-    SketchyEyeEffect,
-)
-from lib.detection import find_faces_from_array
+import math
 
 import numpy as np
+from PIL import Image
+
+from lib.detection import find_faces_from_array
+from lib.effect import (FaceIdentifyEffect, GhostEffect, ImageEffect,
+                        ImageProcessingContext, SaturationEffect,
+                        SketchyEyeEffect, SwirlFaceEffect)
 
 
 def main():
@@ -31,6 +25,12 @@ def main():
                         processed in order they are defined.
                         One of -> [identify-face, swirl, ghost, saturation, eyes]""",
         required=True,
+    )
+    parser.add_argument(
+        "--resize",
+        action='store_true',
+        help="whether to resize the processed image",
+        default=False,
     )
 
     args = parser.parse_args()
@@ -75,8 +75,18 @@ def main():
         context.img = result
         context.img_data = np.array(result)
 
+    if args.resize:
+        printer_dpi = 100
+        label_width_inches = 2
+
+        new_width = printer_dpi * label_width_inches
+        new_height = math.ceil((new_width / result.width) * result.height)
+
+        result.thumbnail((new_width, new_height))
+        # result = result.resize((new_width, new_height), resample=Image.ANTIALIAS)
+
     # write to the output file
-    result.save(output_file, "PNG")
+    result.save(output_file, "PNG", quality=95)
 
 
 def create_context_from_image(img: Image) -> ImageProcessingContext:
