@@ -85,6 +85,7 @@ def main():
             new_height = args.resize[1]
         else:
             new_height = math.ceil((new_width / result.width) * result.height)
+            print(f'calculated height value to be {new_height}')
 
         result.thumbnail((new_width, new_height))
         # result = result.resize((new_width, new_height), resample=Image.ANTIALIAS)
