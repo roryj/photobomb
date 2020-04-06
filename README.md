@@ -17,22 +17,22 @@ pip3 install -r requirements.txt
 ## Commands
 ### Swirl Effect
 ```
-python3 main.py --input-file ./test-image.jpg --effects swirl
+python3 photobomb.py --input-file ./test-image.jpg --effects swirl
 ```
 
 ### Face Identify Effect
 ```
-python3 main.py --input-file ./test-image.jpg --effects identify-face
+python3 photobomb.py --input-file ./test-image.jpg --effects identify-face
 ```
 
 ### Ghost Effect
 ```
-python3 main.py --input-file ./test-image.jpg --effects ghost
+python3 photobomb.py --input-file ./test-image.jpg --effects ghost
 ```
 
 ### Running multiple effects
 `photobooth` now has support for running multiple effects on top of each other! You can do this by putting a list of filters after the `--effects` flag. These effects are run in the order the are written. For example:
 
 ```
-python3 main.py --input-file ./test-image.jpg --effects identify-face swirl ghost
+python3 photobomb.py --input-file ./test-image.jpg --effects identify-face swirl ghost
 ```
