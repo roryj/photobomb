@@ -20,6 +20,9 @@ class ImageProcessingContext(object):
         self.faces = faces
         super().__init__()
 
+    def filename(self):
+        return self.img.filename
+
 
 class ImageEffect(object):
     def __init__(self):
