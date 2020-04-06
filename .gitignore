@@ -2,3 +2,6 @@ bin/
 __pycache__
 .vscode
 .DS_Store
+resources/input
+photo_booth_pic.png
+result.png
