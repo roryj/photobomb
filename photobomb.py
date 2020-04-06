@@ -5,9 +5,15 @@ import numpy as np
 from PIL import Image
 
 from lib.detection import find_faces_from_array
-from lib.effect import (FaceIdentifyEffect, GhostEffect, ImageEffect,
-                        ImageProcessingContext, SaturationEffect,
-                        SketchyEyeEffect, SwirlFaceEffect)
+from lib.effect import (
+    FaceIdentifyEffect,
+    GhostEffect,
+    ImageEffect,
+    ImageProcessingContext,
+    SaturationEffect,
+    SketchyEyeEffect,
+    SwirlFaceEffect,
+)
 
 
 def main():
