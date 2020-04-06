@@ -6,9 +6,15 @@ import numpy as np
 from PIL import Image
 
 from lib.detection import find_faces_from_array
-from lib.effect import (FaceIdentifyEffect, GhostEffect, ImageEffect,
-                        ImageProcessingContext, SaturationEffect,
-                        SketchyEyeEffect, SwirlFaceEffect)
+from lib.effect import (
+    FaceIdentifyEffect,
+    GhostEffect,
+    ImageEffect,
+    ImageProcessingContext,
+    SaturationEffect,
+    SketchyEyeEffect,
+    SwirlFaceEffect,
+)
 
 
 def main():
@@ -18,7 +24,7 @@ def main():
         nargs="+",
         help="""the list of images to include in the photobooth image.
         All images must be the same size.""",
-        required=True
+        required=True,
     )
     parser.add_argument(
         "--border-size",
@@ -28,7 +34,7 @@ def main():
     parser.add_argument(
         "--output-file",
         help="the name of the output file",
-        default="photo_booth_pic.png"
+        default="photo_booth_pic.png",
     )
 
     args = parser.parse_args()
@@ -51,8 +57,10 @@ def main():
 
     # 2
     result_width = image_width + (2 * args.border_size)
-    result_height = (image_height * len(contexts)) + ((len(contexts) + 1) * args.border_size)
-    print(f'final image size: {result_width}x{result_height}')
+    result_height = (image_height * len(contexts)) + (
+        (len(contexts) + 1) * args.border_size
+    )
+    print(f"final image size: {result_width}x{result_height}")
     final_image = Image.new("RGBA", (result_width, result_height), (255, 255, 255, 255))
 
     # 3
@@ -62,7 +70,7 @@ def main():
 
         x = args.border_size
         y = (count * image_height) + ((count + 1) * args.border_size)
-        print(f'putting image of size {processed_image.size} into: {x},{y}')
+        print(f"putting image of size {processed_image.size} into: {x},{y}")
 
         final_image.paste(processed_image, (x, y))
         count += 1
@@ -74,7 +82,9 @@ def main():
 def run_image_effects(context: ImageProcessingContext) -> Image.Image:
     effects = determine_effects_to_run()
 
-    print(f'running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}')
+    print(
+        f"running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}"
+    )
     for effect in effects:
         img = effect.process_image(context)
 
@@ -82,8 +92,12 @@ def run_image_effects(context: ImageProcessingContext) -> Image.Image:
 
 
 def determine_effects_to_run() -> [ImageEffect]:
-    all_effects = [FaceIdentifyEffect(), GhostEffect(),
-                   SketchyEyeEffect(), SwirlFaceEffect(1)]
+    all_effects = [
+        FaceIdentifyEffect(),
+        GhostEffect(),
+        SketchyEyeEffect(),
+        SwirlFaceEffect(1),
+    ]
     chance_for_next_effect = 100
 
     selected_effects = []
@@ -91,7 +105,7 @@ def determine_effects_to_run() -> [ImageEffect]:
     while len(selected_effects) < 4 and random.randint(0, 100) < chance_for_next_effect:
         index = random.randint(0, len(all_effects) - 1)
         selected = all_effects[index]
-        print(f'selected effect {selected.__class__.__name__}')
+        print(f"selected effect {selected.__class__.__name__}")
         selected_effects.append(selected)
 
         all_effects.remove(selected)
@@ -105,7 +119,7 @@ def determine_effects_to_run() -> [ImageEffect]:
 
     # run saturation effect at the end, maybe
     if random.randint(0, 100) < 50:
-        print(f'selected effect SaturationEffect')
+        print("selected effect SaturationEffect")
         selected_effects.append(SaturationEffect(0.7))
 
     return selected_effects
@@ -121,7 +135,9 @@ def setup_images_for_processing(files: [str]) -> (int, int, [ImageProcessingCont
     for file_path in files:
         img = Image.open(file_path)
         if prev_img is not None and img.size != prev_img.size:
-            raise ValueError(f'the image {img.filename} is not the same size as {prev_img.filename}')
+            raise ValueError(
+                f"the image {img.filename} is not the same size as {prev_img.filename}"
+            )
 
         contexts.append(create_context_from_image(img))
 
