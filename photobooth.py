@@ -1,5 +1,6 @@
 import argparse
 import math
+import random
 
 import numpy as np
 from PIL import Image
@@ -70,15 +71,45 @@ def main():
     final_image.save(args.output_file, "PNG")
 
 
-def run_image_effects(img: Image.Image) -> Image.Image:
-    # TODO: determine the list of effects to run randomly
-    effects = [FaceIdentifyEffect]
+def run_image_effects(context: ImageProcessingContext) -> Image.Image:
+    effects = determine_effects_to_run()
 
+    print(f'running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}')
     for effect in effects:
-        img = effect().process_image(img)
+        img = effect.process_image(context)
 
-    img.convert('RGBA')
+    # img.convert('RGBA')
     return img
+
+
+def determine_effects_to_run() -> [ImageEffect]:
+    all_effects = [FaceIdentifyEffect(), GhostEffect(),
+                   SketchyEyeEffect(), SwirlFaceEffect(1)]
+    chance_for_next_effect = 100
+
+    selected_effects = []
+
+    while len(selected_effects) < 4 and random.randint(0, 100) < chance_for_next_effect:
+        index = random.randint(0, len(all_effects) - 1)
+        selected = all_effects[index]
+        print(f'selected effect {selected.__class__.__name__}')
+        selected_effects.append(selected)
+
+        all_effects.remove(selected)
+
+        # special case ghost effect since having it before other effects
+        # causes weird issues
+        if isinstance(selected, GhostEffect):
+            break
+
+        chance_for_next_effect = chance_for_next_effect / 2
+
+    # run saturation effect at the end, maybe
+    if random.randint(0, 100) < 50:
+        print(f'selected effect SaturationEffect')
+        selected_effects.append(SaturationEffect(0.7))
+
+    return selected_effects
 
 
 def setup_images_for_processing(files: [str]) -> (int, int, [ImageProcessingContext]):
