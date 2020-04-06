@@ -78,7 +78,6 @@ def run_image_effects(context: ImageProcessingContext) -> Image.Image:
     for effect in effects:
         img = effect.process_image(context)
 
-    # img.convert('RGBA')
     return img
 
 
