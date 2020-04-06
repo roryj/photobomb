@@ -26,14 +26,6 @@ def main():
                         One of -> [identify-face, swirl, ghost, saturation, eyes]""",
         required=True,
     )
-    parser.add_argument(
-        "--resize",
-        nargs="+",
-        help="""the width and height to size the resulting spooky image.
-        If no height is given, a height is calulated.
-        ex: --resize 200 40""",
-        default=False,
-    )
 
     args = parser.parse_args()
 
@@ -76,19 +68,6 @@ def main():
         result = p.process_image(context)
         context.img = result
         context.img_data = np.array(result)
-
-    if len(args.resize) >= 1:
-        print(f'resizing image to {args.resize}')
-        new_width = int(args.resize[0])
-
-        if len(args.resize) >= 2:
-            new_height = args.resize[1]
-        else:
-            new_height = math.ceil((new_width / result.width) * result.height)
-            print(f'calculated height value to be {new_height}')
-
-        result.thumbnail((new_width, new_height))
-        # result = result.resize((new_width, new_height), resample=Image.ANTIALIAS)
 
     # write to the output file
     result.save(output_file, "PNG", quality=95)
