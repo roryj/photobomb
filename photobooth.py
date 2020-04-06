@@ -1,5 +1,4 @@
 import argparse
-import math
 import random
 
 import numpy as np
@@ -7,7 +6,6 @@ from PIL import Image
 
 from lib.detection import find_faces_from_array
 from lib.effect import (
-    FaceIdentifyEffect,
     GhostEffect,
     ImageEffect,
     ImageProcessingContext,
@@ -93,7 +91,6 @@ def run_image_effects(context: ImageProcessingContext) -> Image.Image:
 
 def determine_effects_to_run() -> [ImageEffect]:
     all_effects = [
-        FaceIdentifyEffect(),
         GhostEffect(),
         SketchyEyeEffect(),
         SwirlFaceEffect(1),
@@ -115,7 +112,7 @@ def determine_effects_to_run() -> [ImageEffect]:
         if isinstance(selected, GhostEffect):
             break
 
-        chance_for_next_effect = chance_for_next_effect / 2
+        chance_for_next_effect = chance_for_next_effect * (2 / 3)
 
     # run saturation effect at the end, maybe
     if random.randint(0, 100) < 50:
