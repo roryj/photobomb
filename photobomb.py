@@ -1,6 +1,7 @@
 import argparse
-
 import numpy as np
+import os
+
 from PIL import Image
 
 from lib.detection import find_faces_from_array
@@ -21,7 +22,7 @@ def main():
         "--input-file", help="the full path to the input image file", required=True
     )
     parser.add_argument(
-        "--output-file", help="the name of the output file", default="result.png"
+        "--output-dir", help="the name of the output directory", default="output"
     )
     parser.add_argument(
         "--effects",
@@ -31,11 +32,24 @@ def main():
                         One of -> [identify-face, swirl, ghost, saturation, eyes]""",
         required=True,
     )
+    parser.add_argument(
+        "--show",
+        action='store_true',
+        help="whether to show the processed image",
+        default=False,
+    )
 
     args = parser.parse_args()
-
     input_file_path = args.input_file
-    output_file = args.output_file
+    output_dir = args.output_dir
+    effects = args.effects
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    input_file_name = os.path.basename(input_file_path)
+    output_file_name = input_file_name.split('.')[0] + '-' + '-'.join(effects) + '.png'
+    output_file_path = os.path.join(output_dir, output_file_name)
 
     img = Image.open(input_file_path)
     image_processors = []
@@ -43,7 +57,7 @@ def main():
 
     context = create_context_from_image(img)
 
-    for effect in args.effects:
+    for effect in effects:
         image_processor: ImageEffect
         if effect == "identify-face":
             print("identify face effect added")
@@ -75,7 +89,10 @@ def main():
         context.img_data = np.array(result)
 
     # write to the output file
-    result.save(output_file, "PNG", quality=95)
+    result.save(output_file_path, "PNG", quality=95)
+
+    if args.show:
+        result.show()
 
 
 def create_context_from_image(img: Image) -> ImageProcessingContext:
