@@ -19,22 +19,25 @@ from lib.effect import (
 def main():
     parser = argparse.ArgumentParser(description="Some spooky ass photobombing")
     parser.add_argument(
-        "--input-file", help="the full path to the input image file", required=True
+        "--input-file",
+        help="the full path to the input image file",
+        required=True,
     )
     parser.add_argument(
-        "--output-dir", help="the name of the output directory", default="output"
+        "--output-dir", help="the name of the output directory",
+        default="output",
     )
     parser.add_argument(
         "--effects",
         nargs="+",
         help="""the effects to apply on an image. Will be
-                        processed in order they are defined.
-                        One of -> [identify-face, swirl, ghost, saturation, eyes]""",
+                processed in order they are defined.
+                One of -> [identify-face, swirl, ghost, saturation, eyes]""",
         required=True,
     )
     parser.add_argument(
         "--show",
-        action='store_true',
+        action="store_true",
         help="whether to show the processed image",
         default=False,
     )
@@ -48,7 +51,7 @@ def main():
         os.makedirs(output_dir)
 
     input_file_name = os.path.basename(input_file_path)
-    output_file_name = input_file_name.split('.')[0] + '-' + '-'.join(effects) + '.png'
+    output_file_name = input_file_name.split(".")[0] + "-" + "-".join(effects) + ".png"
     output_file_path = os.path.join(output_dir, output_file_name)
 
     img = Image.open(input_file_path)
