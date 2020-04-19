@@ -29,7 +29,7 @@ def main():
 
     photobooth = Photobooth(
         RandomStaticPhoto(args.input_files),
-        FilePrinter(args.output_file, True),
+        FilePrinter(args.output_file),
         len(args.input_files),
         int(args.border_size),
     )

@@ -64,9 +64,9 @@ def main():
     if args.should_print:
         # TODO: This should actually print using the printer
         # once we figure out how to do that
-        printer = FilePrinter("./output/result.png", True)
+        printer = FilePrinter("./output/result.png")
     else:
-        printer = FilePrinter("./output/result.png", True)
+        printer = FilePrinter("./output/result.png")
 
     if args.use_webcam:
         printer = WebCamPhotoTaker("test")

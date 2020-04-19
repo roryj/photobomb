@@ -65,16 +65,13 @@ class PhotoPrinter(object):
 
 
 class FilePrinter(PhotoPrinter):
-    def __init__(self, output_file_name: str, open_image: bool):
+    def __init__(self, output_file_name: str):
         self.output_file_name = output_file_name
-        self.open_image = open_image
         super().__init__()
 
     def print(self, img: Image.Image):
         print(f"Saving the image to {self.output_file_name}")
         img.save(self.output_file_name, "PNG", quality=95)
-        if self.open_image:
-            img.show()
 
 
 class Photobooth(object):
