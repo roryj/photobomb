@@ -3,7 +3,7 @@ import threading
 import keyboard
 
 from lib.photobooth import (
-    FilePrinter, Photobooth, PhotoPrinter, WebCamPhotoTaker
+    FilePrinter, Photobooth, PhotoPrinter, WebCamPhotoTaker, RandomStaticPhoto
 )
 
 
@@ -38,6 +38,12 @@ def main():
         help="the size of the border to put around all images",
     )
     parser.add_argument(
+        "--use-webcam",
+        dest="use_webcam",
+        action="store_true",
+        help="whether to take actual pictures using the webcam or use local files",
+    )
+    parser.add_argument(
         "--should-print",
         dest="should_print",
         action="store_true",
@@ -61,6 +67,11 @@ def main():
         printer = FilePrinter("./output/result.png", True)
     else:
         printer = FilePrinter("./output/result.png", True)
+
+    if args.use_webcam:
+        printer = WebCamPhotoTaker("test")
+    else:
+        printer = RandomStaticPhoto(["./resources/input/test-image.jpg"])
 
     photobooth = Photobooth(
         WebCamPhotoTaker("test"),
