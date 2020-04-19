@@ -1,17 +1,7 @@
 import argparse
-import random
 
-import numpy as np
-from PIL import Image
-
-from lib.detection import find_faces_from_array
-from lib.effect import (
-    GhostEffect,
-    ImageEffect,
-    ImageProcessingContext,
-    SaturationEffect,
-    SketchyEyeEffect,
-    SwirlFaceEffect,
+from lib.photobooth import (
+    FilePrinter, Photobooth, RandomStaticPhoto
 )
 
 
@@ -37,116 +27,14 @@ def main():
 
     args = parser.parse_args()
 
-    """
-        to create a photobooth image, we need to:
-        1) get all the input files
-        2) using the images, create the "final image" as a blank
-        3) for each image
-            a. determmine which effects to run
-            b. run the effects
-            c. paste each image onto their expected location inside the "final image"
-        4) save the "final image"
-        5) ...
-        6) profit?
-    """
-
-    # 1
-    image_width, image_height, contexts = setup_images_for_processing(args.input_files)
-
-    # 2
-    result_width = image_width + (2 * args.border_size)
-    result_height = (image_height * len(contexts)) + (
-        (len(contexts) + 1) * args.border_size
+    photobooth = Photobooth(
+        RandomStaticPhoto(args.input_files),
+        FilePrinter(args.output_file, True),
+        len(args.input_files),
+        args.border_size,
     )
-    print(f"final image size: {result_width}x{result_height}")
-    final_image = Image.new("RGBA", (result_width, result_height), (255, 255, 255, 255))
 
-    # 3
-    count = 0
-    for context in contexts:
-        processed_image = run_image_effects(context)
-
-        x = args.border_size
-        y = (count * image_height) + ((count + 1) * args.border_size)
-        print(f"putting image of size {processed_image.size} into: {x},{y}")
-
-        final_image.paste(processed_image, (x, y))
-        count += 1
-
-    # 4
-    final_image.save(args.output_file, "PNG")
-
-
-def run_image_effects(context: ImageProcessingContext) -> Image.Image:
-    effects = determine_effects_to_run()
-
-    print(
-        f"running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}"
-    )
-    for effect in effects:
-        img = effect.process_image(context)
-
-    return img
-
-
-def determine_effects_to_run() -> [ImageEffect]:
-    all_effects = [
-        GhostEffect(),
-        SketchyEyeEffect(),
-        SwirlFaceEffect(1),
-    ]
-    chance_for_next_effect = 100
-
-    selected_effects = []
-
-    while len(selected_effects) < 4 and random.randint(0, 100) < chance_for_next_effect:
-        index = random.randint(0, len(all_effects) - 1)
-        selected = all_effects[index]
-        print(f"selected effect {selected.__class__.__name__}")
-        selected_effects.append(selected)
-
-        all_effects.remove(selected)
-
-        # special case ghost effect since having it before other effects
-        # causes weird issues
-        if isinstance(selected, GhostEffect):
-            break
-
-        chance_for_next_effect = chance_for_next_effect * (2 / 3)
-
-    # run saturation effect at the end, maybe
-    if random.randint(0, 100) < 50:
-        print("selected effect SaturationEffect")
-        selected_effects.append(SaturationEffect(0.7))
-
-    return selected_effects
-
-
-def setup_images_for_processing(files: [str]) -> (int, int, [ImageProcessingContext]):
-    if len(files) == 0:
-        raise ValueError("there must be at least one file passed in")
-
-    prev_img = None
-
-    contexts = []
-    for file_path in files:
-        img = Image.open(file_path)
-        if prev_img is not None and img.size != prev_img.size:
-            raise ValueError(
-                f"the image {img.filename} is not the same size as {prev_img.filename}"
-            )
-
-        contexts.append(create_context_from_image(img))
-
-        prev_img = img
-
-    return prev_img.width, prev_img.height, contexts
-
-
-def create_context_from_image(img: Image) -> ImageProcessingContext:
-    img_data = np.array(img)
-    faces = find_faces_from_array(img_data)
-    return ImageProcessingContext(img, img_data, faces)
+    photobooth.run()
 
 
 if __name__ == "__main__":
