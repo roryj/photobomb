@@ -31,7 +31,7 @@ def main():
         RandomStaticPhoto(args.input_files),
         FilePrinter(args.output_file, True),
         len(args.input_files),
-        args.border_size,
+        int(args.border_size),
     )
 
     photobooth.run()
