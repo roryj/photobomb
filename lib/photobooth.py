@@ -4,6 +4,7 @@ from abc import abstractmethod
 import numpy as np
 from PIL import Image
 import cv2
+import time
 
 from lib.detection import find_faces_from_array
 from lib.effect import (
@@ -179,9 +180,13 @@ class Photobooth(object):
         imgs = []
 
         for i in range(self.num_photos):
+            print(f"taking photo {i + 1} of {self.num_photos} in 5 seconds")
+            time.sleep(5)
             img = self.photo_taker.take_photo()
             imgs.append(img)
+            print("photo taken")
 
+        print("all photos taken!")
         return imgs
 
     def __setup_images_for_processing(
