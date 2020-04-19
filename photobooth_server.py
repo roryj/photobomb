@@ -33,6 +33,11 @@ def main():
         "--num-photos", default=4, help="the number of photos to take",
     )
     parser.add_argument(
+        "--border-size",
+        default=5,
+        help="the size of the border to put around all images",
+    )
+    parser.add_argument(
         "--should-print",
         dest="should_print",
         action="store_true",
@@ -61,7 +66,7 @@ def main():
         RandomStaticPhoto(["./resources/input/test-image.jpg"]),
         printer,
         int(args.num_photos),
-        5,
+        int(args.border_size),
     )
 
     def run_workflow(e):
