@@ -3,7 +3,7 @@ import threading
 import keyboard
 
 from lib.photobooth import (
-    FilePrinter, Photobooth, PhotoPrinter, RandomStaticPhoto
+    FilePrinter, Photobooth, PhotoPrinter, WebCamPhotoTaker
 )
 
 
@@ -63,7 +63,7 @@ def main():
         printer = FilePrinter("./output/result.png", True)
 
     photobooth = Photobooth(
-        RandomStaticPhoto(["./resources/input/test-image.jpg"]),
+        WebCamPhotoTaker("test"),
         printer,
         int(args.num_photos),
         int(args.border_size),

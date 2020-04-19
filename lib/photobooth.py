@@ -3,6 +3,7 @@ from abc import abstractmethod
 
 import numpy as np
 from PIL import Image
+import cv2
 
 from lib.detection import find_faces_from_array
 from lib.effect import (
@@ -24,11 +25,27 @@ class PhotoTaker(object):
         raise NotImplementedError
 
 
+class WebCamPhotoTaker(PhotoTaker):
+    def __init__(self, webcam_name: str):
+        # somehow this needs to be more configurable. Right now it just picks
+        # the first webcam which for me (rory) is my front facing webcam. When
+        # we add the photobooth webcam we will want a way to select that one
+        # in particular
+        self.cam = cv2.VideoCapture(0)
+
+    def take_photo(self) -> Image.Image:
+        success, data = self.cam.read()
+        if not success:
+            raise Exception("couldnt take a photo :(")
+
+        return Image.fromarray(data)
+
+
 class RandomStaticPhoto(PhotoTaker):
     def __init__(self, file_paths: [str]):
         if len(file_paths) <= 0:
             raise ValueError("there must be at least one photo path")
-        
+
         self.file_paths = file_paths
         super().__init__()
 

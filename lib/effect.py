@@ -21,7 +21,10 @@ class ImageProcessingContext(object):
         super().__init__()
 
     def filename(self):
-        return self.img.filename
+        if hasattr(self.img, 'filename'):
+            return self.img.filename
+
+        return 'Unknown'
 
 
 class ImageEffect(object):
