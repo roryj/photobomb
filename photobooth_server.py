@@ -3,7 +3,8 @@ import threading
 import keyboard
 
 from lib.photobooth import (
-    FilePrinter, Photobooth, PhotoPrinter, WebCamPhotoTaker, RandomStaticPhoto
+    FilePrinter, Photobooth, PhotoPrinter, WebCamPhotoTaker, RandomStaticPhoto,
+    PhotoTaker
 )
 
 
@@ -68,13 +69,14 @@ def main():
     else:
         printer = FilePrinter("./output/result.png")
 
+    photo_taker: PhotoTaker
     if args.use_webcam:
-        printer = WebCamPhotoTaker("test")
+        photo_taker = WebCamPhotoTaker("test")
     else:
-        printer = RandomStaticPhoto(["./resources/input/test-image.jpg"])
+        photo_taker = RandomStaticPhoto(["./resources/input/test-image.jpg"])
 
     photobooth = Photobooth(
-        WebCamPhotoTaker("test"),
+        photo_taker,
         printer,
         int(args.num_photos),
         int(args.border_size),
