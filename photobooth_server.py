@@ -39,6 +39,11 @@ def main():
         help="the size of the border to put around all images",
     )
     parser.add_argument(
+        "--photo-delay",
+        default=5,
+        help="the time (in seconds) to delay between taking photos",
+    )
+    parser.add_argument(
         "--use-webcam",
         dest="use_webcam",
         action="store_true",
@@ -80,6 +85,7 @@ def main():
         printer,
         int(args.num_photos),
         int(args.border_size),
+        float(args.photo_delay),
     )
 
     def run_workflow(e):

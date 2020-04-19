@@ -81,6 +81,7 @@ class Photobooth(object):
         printer: PhotoPrinter,
         num_photos: int,
         image_border_size: int,
+        photo_delay_seconds: float,
     ):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
@@ -89,6 +90,7 @@ class Photobooth(object):
         self.printer = printer
         self.num_photos = num_photos
         self.image_border_size = image_border_size
+        self.photo_delay_seconds = photo_delay_seconds
         self.is_running = False
 
     def run(self):
@@ -177,8 +179,8 @@ class Photobooth(object):
         imgs = []
 
         for i in range(self.num_photos):
-            print(f"taking photo {i + 1} of {self.num_photos} in 5 seconds")
-            time.sleep(5)
+            print(f"taking photo {i + 1} of {self.num_photos} in {self.photo_delay_seconds} seconds")
+            time.sleep(self.photo_delay_seconds)
             img = self.photo_taker.take_photo()
             imgs.append(img)
             print("photo taken")
