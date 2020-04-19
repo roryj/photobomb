@@ -320,7 +320,7 @@ class SketchyEyeEffect(ImageEffect):
             mask_blur = mask.filter(ImageFilter.GaussianBlur(2))
 
             combined = Image.composite(just_face, spooky_face, mask_blur)
-            return combined
+            # return combined
             img.paste(combined, (left, top, right, bottom))
 
         return img
