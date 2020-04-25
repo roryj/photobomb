@@ -1,10 +1,7 @@
 import argparse
-
-from lib.photobooth import (
-    PhotoPrinter, Photobooth, RandomStaticPhoto
-)
-
 from pathlib import Path
+
+from lib.photobooth import Photobooth, PhotoPrinter, RandomStaticPhoto
 
 
 def main():
@@ -32,7 +29,7 @@ def main():
     p = Path(args.output_file)
     photobooth = Photobooth(
         RandomStaticPhoto(args.input_files),
-        PhotoPrinter(p.parent, p.stem, p.suffix.replace('.', ''), False),
+        PhotoPrinter(p.parent, p.stem, p.suffix.replace(".", ""), False),
         len(args.input_files),
         int(args.border_size),
         0.0,
