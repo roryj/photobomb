@@ -1,12 +1,13 @@
+import os
 import random
+import time
 from abc import abstractmethod
 from datetime import datetime
 
+import cv2
 import numpy as np
 from PIL import Image
-import cv2
-import time
-import os
+
 from lib.detection import find_faces_from_array
 from lib.effect import (
     GhostEffect,
@@ -57,8 +58,13 @@ class RandomStaticPhoto(PhotoTaker):
 
 
 class PhotoPrinter(object):
-    def __init__(self, output_dir: str, output_file_prefix: str,
-                 image_type: str, should_print: bool):
+    def __init__(
+        self,
+        output_dir: str,
+        output_file_prefix: str,
+        image_type: str,
+        should_print: bool,
+    ):
         self.output_dir = output_dir
         self.output_file_prefix = output_file_prefix
         self.image_type = image_type
@@ -191,7 +197,9 @@ class Photobooth(object):
         imgs = []
 
         for i in range(self.num_photos):
-            print(f"taking photo {i + 1} of {self.num_photos} in {self.photo_delay_seconds} seconds")
+            print(
+                f"taking photo {i + 1} of {self.num_photos} in {self.photo_delay_seconds} seconds"
+            )
             time.sleep(self.photo_delay_seconds)
             img = self.photo_taker.take_photo()
             imgs.append(img)

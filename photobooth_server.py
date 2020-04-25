@@ -2,7 +2,11 @@ import argparse
 import threading
 
 from lib.photobooth import (
-    Photobooth, PhotoPrinter, WebCamPhotoTaker, RandomStaticPhoto, PhotoTaker
+    Photobooth,
+    PhotoPrinter,
+    PhotoTaker,
+    RandomStaticPhoto,
+    WebCamPhotoTaker,
 )
 
 
@@ -71,7 +75,7 @@ def main():
 
     print(f"Server starting. Waiting on enter press...")
     while True:
-        _ = input('waiting for input...')
+        _ = input("waiting for input...")
         print("detected key press!")
         thread = threading.Thread(target=photobooth.run)
         thread.start()
