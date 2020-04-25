@@ -1,6 +1,5 @@
 import argparse
 import threading
-import keyboard
 
 from lib.photobooth import (
     Photobooth, PhotoPrinter, WebCamPhotoTaker, RandomStaticPhoto, PhotoTaker
@@ -24,11 +23,6 @@ def main():
     )
 
     parser = argparse.ArgumentParser(description="Some spooky ass photobombing")
-    parser.add_argument(
-        "--init-key",
-        default="k",
-        help="the key press to listen for to start the photobooth workflow",
-    )
     parser.add_argument(
         "--num-photos", default=4, help="the number of photos to take",
     )
@@ -58,14 +52,8 @@ def main():
     args = parser.parse_args()
 
     print(f"Starting the photobooth with params: {args}")
-    print(f"Press 'ctrl+q' to quit")
 
-    keyboard.add_hotkey("ctrl+q", stop_server)
-
-    # start listening for key
-    print(f"Server starting. Waiting on key: '{args.init_key}''")
-
-    printer = PhotoPrinter("./output/result.png", args.should_print)
+    printer = PhotoPrinter("./output", "photobooth", "png", args.should_print)
 
     photo_taker: PhotoTaker
     if args.use_webcam:
@@ -81,14 +69,12 @@ def main():
         float(args.photo_delay),
     )
 
-    def run_workflow(e):
-        print("detected keypress!")
+    print(f"Server starting. Waiting on enter press...")
+    while True:
+        _ = input('waiting for input...')
+        print("detected key press!")
         thread = threading.Thread(target=photobooth.run)
         thread.start()
-
-    keyboard.on_press_key(args.init_key, run_workflow)
-
-    keyboard.wait()
 
 
 def stop_server():

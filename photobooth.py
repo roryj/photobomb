@@ -4,6 +4,8 @@ from lib.photobooth import (
     PhotoPrinter, Photobooth, RandomStaticPhoto
 )
 
+from pathlib import Path
+
 
 def main():
     parser = argparse.ArgumentParser(description="Some spooky ass photobombing")
@@ -27,9 +29,10 @@ def main():
 
     args = parser.parse_args()
 
+    p = Path(args.output_file)
     photobooth = Photobooth(
         RandomStaticPhoto(args.input_files),
-        PhotoPrinter(args.output_file, False),
+        PhotoPrinter(p.parent, p.stem, p.suffix.replace('.', ''), False),
         len(args.input_files),
         int(args.border_size),
         0.0,
