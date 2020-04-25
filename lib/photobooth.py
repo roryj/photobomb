@@ -127,7 +127,8 @@ class Photobooth(object):
         """
 
         if self.is_running:
-            print("The photobooth workflow is already running! Ignoring...")
+            print("[WARN]: The photobooth workflow is already running! Ignoring...")
+            print("")
             return
 
         self.is_running = True

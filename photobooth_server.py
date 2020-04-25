@@ -75,8 +75,9 @@ def main():
 
     print(f"Server starting. Waiting on enter press...")
     while True:
-        _ = input("waiting for input...")
+        _ = input("waiting for input...\n")
         print("detected key press!")
+        print("")
         thread = threading.Thread(target=photobooth.run)
         thread.start()
 
