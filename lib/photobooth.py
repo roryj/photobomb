@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import time
-
+import os
 from lib.detection import find_faces_from_array
 from lib.effect import (
     GhostEffect,
@@ -56,22 +56,24 @@ class RandomStaticPhoto(PhotoTaker):
 
 
 class PhotoPrinter(object):
-    def __init__(self):
-        super().__init__()
-
-    @abstractmethod
-    def print(self, img: Image.Image):
-        raise NotImplementedError
-
-
-class FilePrinter(PhotoPrinter):
-    def __init__(self, output_file_name: str):
+    def __init__(self, output_file_name: str, should_print: bool):
         self.output_file_name = output_file_name
+        self.should_print = should_print
         super().__init__()
 
     def print(self, img: Image.Image):
         print(f"Saving the image to {self.output_file_name}")
         img.save(self.output_file_name, "PNG", quality=95)
+
+        if self.should_print:
+            print("Attempting to print the image")
+            result = os.system(f"lpr {self.output_file_name}")
+            if result == 0:
+                print("Printing was successfull")
+            else:
+                print("Printing failed :(")
+        else:
+            print("Not printing!")
 
 
 class Photobooth(object):

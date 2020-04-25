@@ -3,8 +3,7 @@ import threading
 import keyboard
 
 from lib.photobooth import (
-    FilePrinter, Photobooth, PhotoPrinter, WebCamPhotoTaker, RandomStaticPhoto,
-    PhotoTaker
+    Photobooth, PhotoPrinter, WebCamPhotoTaker, RandomStaticPhoto, PhotoTaker
 )
 
 
@@ -12,15 +11,15 @@ def main():
     print("Starting the photobooth server...")
     print(
         """
-  .-')     _ (`-.                           .-. .-')                     .-. .-')                             .-') _    ('-. .-. 
- ( OO ).  ( (OO  )                          \  ( OO )                    \  ( OO )                           (  OO) )  ( OO )  / 
-(_)---\_)_.`     \ .-'),-----.  .-'),-----. ,--. ,--.   ,--.   ,--.       ;-----.\  .-'),-----.  .-'),-----. /     '._ ,--. ,--. 
-/    _ |(__...--''( OO'  .-.  '( OO'  .-.  '|  .'   /    \  `.'  /        | .-.  | ( OO'  .-.  '( OO'  .-.  '|'--...__)|  | |  | 
-\  :` `. |  /  | |/   |  | |  |/   |  | |  ||      /,  .-')     /         | '-' /_)/   |  | |  |/   |  | |  |'--.  .--'|   .|  | 
- '..`''.)|  |_.' |\_) |  |\|  |\_) |  |\|  ||     ' _)(OO  \   /          | .-. `. \_) |  |\|  |\_) |  |\|  |   |  |   |       | 
-.-._)   \|  .___.'  \ |  | |  |  \ |  | |  ||  .   \   |   /  /\_         | |  \  |  \ |  | |  |  \ |  | |  |   |  |   |  .-.  | 
-\       /|  |        `'  '-'  '   `'  '-'  '|  |\   \  `-./  /.__)        | '--'  /   `'  '-'  '   `'  '-'  '   |  |   |  | |  | 
- `-----' `--'          `-----'      `-----' `--' '--'    `--'             `------'      `-----'      `-----'    `--'   `--' `--' 
+  .-')     _ (`-.                           .-. .-')                     .-. .-')                             .-') _    ('-. .-.
+ ( OO ).  ( (OO  )                          \  ( OO )                    \  ( OO )                           (  OO) )  ( OO )  /
+(_)---\_)_.`     \ .-'),-----.  .-'),-----. ,--. ,--.   ,--.   ,--.       ;-----.\  .-'),-----.  .-'),-----. /     '._ ,--. ,--.
+/    _ |(__...--''( OO'  .-.  '( OO'  .-.  '|  .'   /    \  `.'  /        | .-.  | ( OO'  .-.  '( OO'  .-.  '|'--...__)|  | |  |
+\  :` `. |  /  | |/   |  | |  |/   |  | |  ||      /,  .-')     /         | '-' /_)/   |  | |  |/   |  | |  |'--.  .--'|   .|  |
+ '..`''.)|  |_.' |\_) |  |\|  |\_) |  |\|  ||     ' _)(OO  \   /          | .-. `. \_) |  |\|  |\_) |  |\|  |   |  |   |       |
+.-._)   \|  .___.'  \ |  | |  |  \ |  | |  ||  .   \   |   /  /\_         | |  \  |  \ |  | |  |  \ |  | |  |   |  |   |  .-.  |
+\       /|  |        `'  '-'  '   `'  '-'  '|  |\   \  `-./  /.__)        | '--'  /   `'  '-'  '   `'  '-'  '   |  |   |  | |  |
+ `-----' `--'          `-----'      `-----' `--' '--'    `--'             `------'      `-----'      `-----'    `--'   `--' `--'
     """
     )
 
@@ -66,13 +65,7 @@ def main():
     # start listening for key
     print(f"Server starting. Waiting on key: '{args.init_key}''")
 
-    printer: PhotoPrinter
-    if args.should_print:
-        # TODO: This should actually print using the printer
-        # once we figure out how to do that
-        printer = FilePrinter("./output/result.png")
-    else:
-        printer = FilePrinter("./output/result.png")
+    printer = PhotoPrinter("./output/result.png", args.should_print)
 
     photo_taker: PhotoTaker
     if args.use_webcam:
