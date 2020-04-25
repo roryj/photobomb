@@ -295,36 +295,16 @@ class SketchyEyeEffect(ImageEffect):
     def process_image(self, context: ImageProcessingContext):
 
         img = context.img
+        draw = ImageDraw.Draw(img)
 
         for face in context.faces:
 
-            top, right, bottom, left = face.get_bounding_box()
-
-            # create a new image based on the current face
-            just_face = Image.fromarray(context.img_data[top:bottom, left:right])
-            spooky_face = just_face.copy()
-            face_drawer = ImageDraw.Draw(spooky_face)
-
-            mask = Image.new("L", just_face.size, 0)
-            mask_drawer = ImageDraw.Draw(mask)
-            mask_drawer.ellipse([(0, 0), (mask.width - 1, mask.height - 1)], 175)
-
             for eye in face.get_eye_points():
-                center_x, center_y, radius = self.__get_eye_dimensions((0, right - left - 1, bottom - top - 1, 0), eye)
+                center_x, center_y, radius = self.__get_eye_dimensions(face.get_bounding_box(), eye)
 
-                face_drawer.ellipse([(center_x - radius, center_y - radius),
-                                    (center_x + radius, center_y + radius)],
-                                    (0, 0, 0, 100))
-
-                mask_drawer.ellipse([(center_x - radius, center_y - radius),
-                                    (center_x + radius, center_y + radius)],
-                                    (210))
-
-            mask_blur = mask.filter(ImageFilter.GaussianBlur(2))
-
-            combined = Image.composite(just_face, spooky_face, mask_blur)
-            # return combined
-            img.paste(combined, (left, top, right, bottom))
+                draw.ellipse([(center_x - radius, center_y - radius),
+                             (center_x + radius, center_y + radius)],
+                             (0, 0, 0, 100))
 
         return img
 
