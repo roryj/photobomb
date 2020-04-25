@@ -1,7 +1,7 @@
 import argparse
 
 from lib.photobooth import (
-    FilePrinter, Photobooth, RandomStaticPhoto
+    PhotoPrinter, Photobooth, RandomStaticPhoto
 )
 
 
@@ -29,9 +29,10 @@ def main():
 
     photobooth = Photobooth(
         RandomStaticPhoto(args.input_files),
-        FilePrinter(args.output_file),
+        PhotoPrinter(args.output_file, False),
         len(args.input_files),
         int(args.border_size),
+        0.0,
     )
 
     photobooth.run()
