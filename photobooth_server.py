@@ -42,9 +42,8 @@ def main():
     )
     parser.add_argument(
         "--use-webcam",
-        dest="use_webcam",
-        action="store_true",
-        help="whether to take actual pictures using the webcam or use local files",
+        help="Specify the index of the webcam to use. Defaults to not using the webcam and showing some bullshit image that probably won't work. Built in webcam is usually 0.",
+        default=-1
     )
     parser.add_argument(
         "--should-print",
@@ -59,9 +58,11 @@ def main():
 
     printer = PhotoPrinter("./output", "photobooth", "png", args.should_print)
 
+    webcam_to_use = int(args.use_webcam)
+
     photo_taker: PhotoTaker
-    if args.use_webcam:
-        photo_taker = WebCamPhotoTaker("test")
+    if webcam_to_use >= 0 :
+        photo_taker = WebCamPhotoTaker(webcam_to_use)
     else:
         photo_taker = RandomStaticPhoto(["./resources/input/test-image.jpg"])
 

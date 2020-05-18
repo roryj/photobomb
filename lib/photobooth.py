@@ -29,19 +29,22 @@ class PhotoTaker(object):
 
 
 class WebCamPhotoTaker(PhotoTaker):
-    def __init__(self, webcam_name: str):
+    def __init__(self, camera_to_use: int):
         # somehow this needs to be more configurable. Right now it just picks
         # the first webcam which for me (rory) is my front facing webcam. When
         # we add the photobooth webcam we will want a way to select that one
         # in particular
-        self.cam = cv2.VideoCapture(0)
+        self.cam = cv2.VideoCapture(camera_to_use)
 
     def take_photo(self) -> Image.Image:
         success, data = self.cam.read()
+
         if not success:
             raise Exception("couldnt take a photo :(")
 
-        return Image.fromarray(data)
+        img = cv2.cvtColor(data, cv2.COLOR_BGR2RGB)
+
+        return Image.fromarray(img)
 
 
 class RandomStaticPhoto(PhotoTaker):
