@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import threading
 
@@ -5,7 +7,6 @@ from lib.photobooth import (
     Photobooth,
     PhotoPrinter,
     PhotoTaker,
-    RandomStaticPhoto,
     WebCamPhotoTaker,
 )
 
@@ -28,7 +29,9 @@ def main():
 
     parser = argparse.ArgumentParser(description="Some spooky ass photobombing")
     parser.add_argument(
-        "--num-photos", default=4, help="the number of photos to take",
+        "--num-photos",
+        default=4,
+        help="the number of photos to take",
     )
     parser.add_argument(
         "--border-size",
@@ -42,8 +45,8 @@ def main():
     )
     parser.add_argument(
         "--use-webcam",
-        help="Specify the index of the webcam to use. Defaults to not using the webcam and showing some bullshit image that probably won't work. Built in webcam is usually 0.",
-        default=-1
+        help="Specify the index of the webcam to use. Built in webcam is usually 0.",
+        default=-0
     )
     parser.add_argument(
         "--should-print",
@@ -60,11 +63,7 @@ def main():
 
     webcam_to_use = int(args.use_webcam)
 
-    photo_taker: PhotoTaker
-    if webcam_to_use >= 0 :
-        photo_taker = WebCamPhotoTaker(webcam_to_use)
-    else:
-        photo_taker = RandomStaticPhoto(["./resources/input/test-image.jpg"])
+    photo_taker: PhotoTaker = WebCamPhotoTaker(webcam_to_use)
 
     photobooth = Photobooth(
         photo_taker,
