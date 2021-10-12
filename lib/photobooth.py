@@ -48,7 +48,7 @@ class WebCamPhotoTaker(PhotoTaker):
 
 
 class RandomStaticPhoto(PhotoTaker):
-    def __init__(self, file_paths: [str]):
+    def __init__(self, file_paths: List[str]):
         if len(file_paths) <= 0:
             raise ValueError("there must be at least one photo path")
 
@@ -191,7 +191,7 @@ class Photobooth(object):
 
         print("Photobooth workflow done")
 
-    def __take_pictures(self) -> [Image.Image]:
+    def __take_pictures(self) -> List[Image.Image]:
         """
         take_pictures
 
@@ -213,8 +213,8 @@ class Photobooth(object):
         return imgs
 
     def __setup_images_for_processing(
-        self, imgs: [Image.Image]
-    ) -> (int, int, [ImageProcessingContext]):
+        self, imgs: List[Image.Image]
+    ) -> Tuple[int, int, List[ImageProcessingContext]]:
         prev_img = None
 
         contexts = []
@@ -235,7 +235,7 @@ class Photobooth(object):
         faces = find_faces_from_array(img_data)
         return ImageProcessingContext(img, img_data, faces)
 
-    def __determine_effects_to_run(self) -> [ImageEffect]:
+    def __determine_effects_to_run(self) -> List[ImageEffect]:
         all_effects = [
             GhostEffect(),
             SketchyEyeEffect(),
