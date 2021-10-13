@@ -2,6 +2,7 @@
 
 import argparse
 import threading
+from lib.display import PhotoboothDisplay
 
 from lib.photobooth import (
     Photobooth,
@@ -46,7 +47,7 @@ def main():
     parser.add_argument(
         "--use-webcam",
         help="Specify the index of the webcam to use. Built in webcam is usually 0.",
-        default=-0
+        default=-0,
     )
     parser.add_argument(
         "--should-print",
@@ -64,14 +65,17 @@ def main():
     webcam_to_use = int(args.use_webcam)
 
     photo_taker: PhotoTaker = WebCamPhotoTaker(webcam_to_use)
+    display = PhotoboothDisplay(webcam_to_use)
 
     photobooth = Photobooth(
+        display,
         photo_taker,
         printer,
         int(args.num_photos),
         int(args.border_size),
         float(args.photo_delay),
     )
+    display.put_text("Welcome!")
 
     print(f"Server starting. Waiting on enter press...")
     while True:

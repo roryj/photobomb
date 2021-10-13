@@ -10,6 +10,7 @@ import numpy as np
 from PIL import Image
 
 from lib.detection import find_faces_from_array
+from lib.display import PhotoboothDisplay
 from lib.effect import (
     GhostEffect,
     ImageEffect,
@@ -99,6 +100,7 @@ class PhotoPrinter(object):
 class Photobooth(object):
     def __init__(
         self,
+        display: PhotoboothDisplay,
         photo_taker: PhotoTaker,
         printer: PhotoPrinter,
         num_photos: int,
@@ -108,6 +110,7 @@ class Photobooth(object):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
 
+        self.display = display
         self.photo_taker = photo_taker
         self.printer = printer
         self.num_photos = num_photos
@@ -140,6 +143,8 @@ class Photobooth(object):
 
             # 1) take the pictures!
             imgs = self.__take_pictures()
+
+            self.display.put_text("processing...")
 
             # 2) process images
             # 2a) convert images to image processing context
@@ -180,10 +185,16 @@ class Photobooth(object):
                 final_image.paste(context.img, (x, y))
                 count += 1
 
+            self.display.clear_text()
+            self.display.put_text("Printing your pictures!")
+
             # 3) print images!
             print("Printing the resulting image")
             self.printer.print(final_image)
             print("Printing complete!")
+
+            self.display.clear_text()
+            self.display.put_text("All done!")
 
         except Exception as e:
             print(f"An exception occurred running the photobooth: {e}")
@@ -199,16 +210,35 @@ class Photobooth(object):
         take pictures that will be processed. The number of pictures to be taken is passed in as a
         parameter
         """
+        self.display.clear_text()
         imgs = []
 
         for i in range(self.num_photos):
+
+            # loop from number of seconds down to 0 sleeping in between
+            # display the number going down
+            # at 0, take picture, maybe do a flash thing on the pic
+            start_time = datetime.now()
+            while (datetime.now() - start_time).seconds < self.photo_delay_seconds:
+                print(f"diff: {(datetime.now() - start_time).seconds}")
+                time_left = int(
+                    self.photo_delay_seconds - (datetime.now() - start_time).seconds
+                )
+                self.display.put_text(str(time_left))
+                # print(f"time left: {time_left}")
+                # update image :D
+                time.sleep(1)
+
             print(
                 f"taking photo {i + 1} of {self.num_photos} in {self.photo_delay_seconds} seconds"
             )
-            time.sleep(self.photo_delay_seconds)
+            self.display.put_text("IMAGE TIME")
+            time.sleep(0.5)
+            self.display.clear_text()
             img = self.photo_taker.take_photo()
             imgs.append(img)
             print("photo taken")
+            time.sleep(0.5)
 
         print("all photos taken!")
         return imgs
