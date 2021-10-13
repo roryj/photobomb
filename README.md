@@ -8,6 +8,8 @@ The photobooth app has a bunch of different effects tailored to spookify some ph
   * `brew install cmake`
 * [Install dlib for MacOS with pytho3 extensions](https://gist.github.com/ageitgey/629d75c1baac34dfa5ca2a1928a7aeaf)
 * python3
+* Install opencv
+  * `brew install opencv`
 
 ## Initial Setup
 ```
