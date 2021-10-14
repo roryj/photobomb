@@ -15,7 +15,18 @@ def show_webcam(mirror=False):
         ret_val, img = cam.read()
         if mirror:
             img = cv2.flip(img, 1)
-        draw_countdown_text(img, '5')
+        draw_countdown_text(img, 'Press ENTER to get SPOOKED')
+        #draw_countdown_text(img, 'GET READY!')
+        draw_photo_num_text(img, 'photo 1/4')
+        cv2.imshow('my webcam', img)
+        key_press = cv2.waitKey(1)
+        if ord('\n') == key_press or key_press == ord('\r'):
+            break  # esc to quit
+    while True:
+        ret_val, img = cam.read()
+        if mirror:
+            img = cv2.flip(img, 1)
+        draw_countdown_text(img, 'GET READY!')
         draw_photo_num_text(img, 'photo 1/4')
         cv2.imshow('my webcam', img)
         key_press = cv2.waitKey(1)
@@ -23,12 +34,27 @@ def show_webcam(mirror=False):
             break  # esc to quit
     cv2.destroyAllWindows()
 
+def render_text_until(cam, stop_predicate, mirror):
+    ret_val, img = cam.read()
+    if mirror:
+        img = cv2.flip(img, 1)
+    draw_countdown_text(img, 'Press ENTER to get SPOOKED')
+    #draw_countdown_text(img, 'GET READY!')
+    draw_photo_num_text(img, 'photo 1/4')
+    cv2.imshow('my webcam', img)
+    key_press = cv2.waitKey(1)
+    if ord('\n') == key_press or key_press == ord('\r'):
+        break  # esc to quit
+
 def draw_countdown_text(img, text="what what in my butt"):
     height, width, _ = img.shape
     font_scale = 7
     thickness = 7
 
     (text_width, text_height), _ = cv2.getTextSize(text, fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=font_scale, thickness=thickness)
+    while text_width >= width:
+        font_scale -= 1
+        (text_width, text_height), _ = cv2.getTextSize(text, fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=font_scale, thickness=thickness)
     text_location = (int(width / 2 - text_width / 2), int(height / 2 + text_height / 2))
 
     cv2.putText(img,
@@ -72,7 +98,6 @@ def draw_photo_num_text(img, text="you wanna do it my butt?"):
 
 def main():
     show_webcam(mirror=True)
-
 
 if __name__ == '__main__':
     main()
