@@ -75,15 +75,12 @@ def main():
         int(args.border_size),
         float(args.photo_delay),
     )
-    display.put_text("Welcome!")
 
     print(f"Server starting. Waiting on enter press...")
-    while True:
-        _ = input("waiting for input...\n")
-        print("detected key press!")
-        print("")
-        thread = threading.Thread(target=photobooth.run)
-        thread.start()
+    display.wait_for_input("Press ENTER to get SPOOKED!")
+
+    thread = threading.Thread(target=photobooth.run)
+    thread.start()
 
 
 def stop_server():
