@@ -56,7 +56,7 @@ pipenv run python3 photobomb.py --input-file ./resources/input/test-image.jpg --
 This script is used to test out the photobooth workflow
 
 ```shell
-python3 photobooth.py --input-files ./resources/input/test-image.jpg ./resources/input/test-image.jpg --border-size 5 --output-file photo_booth_result.png
+pipenv run python3 photobooth.py --input-files ./resources/input/test-image.jpg ./resources/input/test-image.jpg --border-size 5 --output-file photo_booth_result.png
 ```
 
 ### photobooth_server.py
@@ -64,5 +64,5 @@ python3 photobooth.py --input-files ./resources/input/test-image.jpg ./resources
 This is runs the server that listens for key presses, to start the photobooth workflow
 
 ```shell
-python3 photobooth_server.py
+pipenv run python3 photobooth_server.py
 ```
