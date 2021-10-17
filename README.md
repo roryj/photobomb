@@ -16,7 +16,7 @@ The photobooth app has a bunch of different effects tailored to spookify some ph
 ## Initial Setup
 
 ```shell
-pipenv install --python python3
+pipenv install
 ```
 
 ## Commands
