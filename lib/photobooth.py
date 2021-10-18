@@ -144,7 +144,7 @@ class Photobooth(object):
             # 1) take the pictures!
             imgs = self.__take_pictures()
 
-            self.display.put_text("processing...")
+            self.display.put_text("Detecting ghosts...")
 
             # 2) process images
             # 2a) convert images to image processing context
@@ -219,20 +219,25 @@ class Photobooth(object):
             # display the number going down
             # at 0, take picture, maybe do a flash thing on the pic
             start_time = datetime.now()
+            photo_num = i + 1
+            sub_text = f"photo {photo_num}/{self.num_photos}"
+            print(f"taking {sub_text} in {self.photo_delay_seconds} seconds")
+
             while (datetime.now() - start_time).seconds < self.photo_delay_seconds:
                 print(f"diff: {(datetime.now() - start_time).seconds}")
                 time_left = int(
                     self.photo_delay_seconds - (datetime.now() - start_time).seconds
                 )
-                self.display.put_text(str(time_left))
+                self.display.put_text(str(time_left), sub_text)
                 # print(f"time left: {time_left}")
                 # update image :D
                 time.sleep(1)
 
-            print(
-                f"taking photo {i + 1} of {self.num_photos} in {self.photo_delay_seconds} seconds"
-            )
-            self.display.put_text("IMAGE TIME")
+            if photo_num == 3 :
+                self.display.put_text("Die!", sub_text)
+            else :
+                self.display.put_text("Cheese!", sub_text)
+
             time.sleep(0.5)
             self.display.clear_text()
             img = self.photo_taker.take_photo()

@@ -75,7 +75,7 @@ def main():
         int(args.border_size),
         float(args.photo_delay),
     )
-    display.put_text("Welcome!")
+    display.put_text("Press ENTER to get SPOOKED!")
 
     print(f"Server starting. Waiting on enter press...")
     while True:
