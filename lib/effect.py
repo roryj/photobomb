@@ -139,10 +139,10 @@ class GhostEffect(ImageEffect):
             # |           image           |
             # | ghost range | ghost range |
             # | x           |       x     |
-            min_ghost_x = (img.width / num_ghosts_to_place) * i
-            max_ghost_x = (
+            min_ghost_x = int((img.width / num_ghosts_to_place) * i)
+            max_ghost_x = int((
                 (img.width / num_ghosts_to_place) * (i + 1) - 1
-            ) - ghost.width
+            ) - ghost.width)
 
             left = random.randint(min_ghost_x, max_ghost_x)
             top = random.randint(10, 30)

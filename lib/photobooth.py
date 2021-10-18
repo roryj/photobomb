@@ -4,6 +4,7 @@ import time
 from typing import List, Tuple
 from abc import abstractmethod
 from datetime import datetime
+import traceback
 
 import cv2
 import numpy as np
@@ -198,6 +199,7 @@ class Photobooth(object):
 
         except Exception as e:
             print(f"An exception occurred running the photobooth: {e}")
+            traceback.print_exc()
 
         self.is_running = False
 
