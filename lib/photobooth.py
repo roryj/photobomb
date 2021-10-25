@@ -3,7 +3,7 @@ import random
 import time
 from typing import List, Tuple
 from abc import abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 import traceback
 
 import cv2
@@ -195,6 +195,18 @@ class Photobooth(object):
             print("Printing complete!")
 
             self.display.clear_text()
+
+            end_time = datetime.now() + timedelta(seconds=30)
+
+            while (now := datetime.now()) < end_time:
+                text = "Still printing"
+                for dot in range(now.second % 4):
+                    text += "."
+                self.display.clear_text()
+                self.display.put_text(text)
+                time.sleep(1)
+
+            self.display.clear_text()
             self.display.put_text("All done!")
 
         except Exception as e:
@@ -226,7 +238,6 @@ class Photobooth(object):
             print(f"taking {sub_text} in {self.photo_delay_seconds} seconds")
 
             while (datetime.now() - start_time).seconds < self.photo_delay_seconds:
-                print(f"diff: {(datetime.now() - start_time).seconds}")
                 time_left = int(
                     self.photo_delay_seconds - (datetime.now() - start_time).seconds
                 )
@@ -235,9 +246,9 @@ class Photobooth(object):
                 # update image :D
                 time.sleep(1)
 
-            if photo_num == 3 :
+            if photo_num == 3:
                 self.display.put_text("Die!", sub_text)
-            else :
+            else:
                 self.display.put_text("Cheese!", sub_text)
 
             time.sleep(0.5)
