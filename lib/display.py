@@ -27,10 +27,14 @@ def _display_loop(camera_number: int, request_queue: Queue):
             _draw_sub_text(img, current_text.get("subtext"))
 
         cv2.imshow("my webcam", img)
+
+        # for some reason this line needs to be here or this doesn't work. I don't know why,
+        # but I do know it won't work otherwise!
         if cv2.waitKey(1) == 27:
             break  # esc to quit
 
         time.sleep(0.01)
+
 
 def _draw_main_text(img, text="Die!"):
     height, width, _ = img.shape
@@ -49,7 +53,8 @@ def _draw_main_text(img, text="Die!"):
             text,
             fontFace=cv2.FONT_HERSHEY_COMPLEX,
             fontScale=font_scale,
-            thickness=thickness)
+            thickness=thickness,
+        )
     text_location = (
         int(width / 2 - text_width / 2),
         int(height / 2 + text_height / 2),
@@ -58,27 +63,30 @@ def _draw_main_text(img, text="Die!"):
 
 
 def _draw_sub_text(img, text="Kill them!"):
-    _draw_text(img, text,
-        text_location=(50, 50),
-        font_scale=1,
-        thickness=4)
+    _draw_text(img, text, text_location=(50, 50), font_scale=1, thickness=4)
 
 
 def _draw_text(img, text, text_location, font_scale, thickness):
-    cv2.putText(img,
+    cv2.putText(
+        img,
         text=text,
         org=text_location,
         fontFace=cv2.FONT_HERSHEY_COMPLEX,
         fontScale=font_scale,
         color=[0, 0, 0],
-        lineType=cv2.LINE_AA, thickness=thickness)
-    cv2.putText(img,
+        lineType=cv2.LINE_AA,
+        thickness=thickness,
+    )
+    cv2.putText(
+        img,
         text=text,
         org=text_location,
         fontFace=cv2.FONT_HERSHEY_COMPLEX,
         fontScale=font_scale,
         color=[255, 255, 255],
-        lineType=cv2.LINE_AA, thickness=(thickness - 2))
+        lineType=cv2.LINE_AA,
+        thickness=(thickness - 2),
+    )
 
 
 class PhotoboothDisplay:
@@ -91,9 +99,7 @@ class PhotoboothDisplay:
         ).start()
 
     def put_text(self, text, subtext="") -> None:
-        self.request_queue.put(
-            {"type": "set", "text": text, "subtext": subtext}
-        )
+        self.request_queue.put({"type": "set", "text": text, "subtext": subtext})
 
     def clear_text(self) -> None:
         self.request_queue.put({"type": "clear"})
