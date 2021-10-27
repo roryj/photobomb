@@ -76,7 +76,7 @@ def main():
         float(args.photo_delay),
     )
 
-    print(f"Server starting. Waiting on enter press...")
+    print("Server starting. Waiting on enter press...")
     while True:
         display.clear_text()
         display.put_text("Press ENTER to get SPOOKED!")
@@ -89,7 +89,7 @@ def main():
 def stop_server():
     print("killing the server...")
     print("goodbye!")
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
