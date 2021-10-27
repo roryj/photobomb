@@ -86,11 +86,5 @@ def main():
         photobooth.run()
 
 
-def stop_server():
-    print("killing the server...")
-    print("goodbye!")
-    sys.exit(0)
-
-
 if __name__ == "__main__":
     main()
