@@ -21,10 +21,10 @@ class ImageProcessingContext(object):
         super().__init__()
 
     def filename(self):
-        if hasattr(self.img, 'filename'):
+        if hasattr(self.img, "filename"):
             return self.img.filename
 
-        return 'Unknown'
+        return "Unknown"
 
 
 class ImageEffect(object):
@@ -48,9 +48,7 @@ class GhostEffect(ImageEffect):
             self.__ghost_images.append(img)
 
         if len(self.__ghost_images) == 0:
-            raise IllegalStateException(
-                f"no images found in the path {ghost_image_paths}"
-            )
+            raise IllegalStateException(f"no images found in the path {ghost_image_paths}")
 
         self.__max_ghost_width = max_ghost_width
 
@@ -116,7 +114,7 @@ class GhostEffect(ImageEffect):
         # how many ghosts to place
         num_ghosts_to_place = min(
             len(self.__ghost_images),
-            4,  # we dont want to overload the image with ghosts
+            2,  # we dont want to overload the image with ghosts
             math.floor(img.width / self.__max_ghost_width),
         )
 
@@ -140,9 +138,7 @@ class GhostEffect(ImageEffect):
             # | ghost range | ghost range |
             # | x           |       x     |
             min_ghost_x = int((img.width / num_ghosts_to_place) * i)
-            max_ghost_x = int((
-                (img.width / num_ghosts_to_place) * (i + 1) - 1
-            ) - ghost.width)
+            max_ghost_x = int(((img.width / num_ghosts_to_place) * (i + 1) - 1) - ghost.width)
 
             left = random.randint(min_ghost_x, max_ghost_x)
             top = random.randint(10, 30)
@@ -260,12 +256,7 @@ class SwirlFaceEffect(ImageEffect):
                 # closer to the centre, we want them to be more manipulated
                 # (which is what the swirl amount is for), further pixels from
                 # the centre should be not swirled as much
-                twist_angle = (
-                    ((random.randint(98, 102) / 100) * swirl_strength)
-                    * swirl_amount
-                    * math.pi
-                    * 2
-                )
+                twist_angle = ((random.randint(98, 102) / 100) * swirl_strength) * swirl_amount * math.pi * 2
 
                 # 4) add the angle to twist to the current angle where the
                 # pixel is located from centre
@@ -302,15 +293,13 @@ class SketchyEyeEffect(ImageEffect):
             for eye in face.get_eye_points():
                 center_x, center_y, radius = self.__get_eye_dimensions(face.get_bounding_box(), eye)
 
-                draw.ellipse([(center_x - radius, center_y - radius),
-                             (center_x + radius, center_y + radius)],
-                             (0, 0, 0, 100))
+                draw.ellipse(
+                    [(center_x - radius, center_y - radius), (center_x + radius, center_y + radius)], (0, 0, 0, 100)
+                )
 
         return img
 
-    def __get_eye_dimensions(self,
-                             face_bounding_box: (int, int, int, int),
-                             eye_points: [(int, int)]) -> (int, int):
+    def __get_eye_dimensions(self, face_bounding_box: (int, int, int, int), eye_points: [(int, int)]) -> (int, int):
         face_top, face_right, face_bottom, face_left = face_bounding_box
 
         # find center of the each eye
@@ -324,8 +313,8 @@ class SketchyEyeEffect(ImageEffect):
             min_y = min(min_y, y)
             max_y = max(max_y, y)
 
-        center_x = min_x + ((max_x - min_x)/2)
-        center_y = min_y + ((max_y - min_y)/2)
-        radius = max((max_x - min_x)/2, (max_y - min_y)/2)
+        center_x = min_x + ((max_x - min_x) / 2)
+        center_y = min_y + ((max_y - min_y) / 2)
+        radius = max((max_x - min_x) / 2, (max_y - min_y) / 2)
 
         return center_x, center_y, radius
