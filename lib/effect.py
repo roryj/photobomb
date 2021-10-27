@@ -84,6 +84,9 @@ class GhostEffect(ImageEffect):
             for y in range(0, ghost_mask.height):
                 r, g, b, a = all_ghost_image.getpixel((x, y))
 
+                # 'a' is the alpha value of the combinaton of all ghosts images at point x,y
+                # An alpha of 0 means the pixel is transparent, which we use to create an image
+                # mask only where the ghost pixels are located
                 if a == 0:
                     continue
 
