@@ -277,7 +277,7 @@ class Photobooth(object):
         all_effects = [
             GhostEffect(2),
             GhostEffect(1),
-            GhostEffect(3),
+            GhostEffect(4),
             SketchyEyeEffect(),
             SwirlFaceEffect(1),
             SwirlFaceEffect(0.5),
@@ -309,7 +309,7 @@ class Photobooth(object):
             chance_for_next_effect = chance_for_next_effect * (2 / 3)
 
         # run tv static effect at the end, maybe
-        if random.randint(0, 100) < 10:
+        if random.randint(0, 100) < 15:
             sigma_value = random.randint(500, 1000)
             print(f"selected effect TvStaticEffect with value {sigma_value}")
             selected_effects.append(TvStaticEffect(sigma_value))
