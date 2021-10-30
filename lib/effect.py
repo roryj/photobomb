@@ -37,8 +37,9 @@ class ImageEffect(object):
 
 
 class GhostEffect(ImageEffect):
-    def __init__(self, ghost_image_paths="./resources/ghosts/"):
+    def __init__(self, num_ghosts: int = 2, ghost_image_paths="./resources/ghosts/"):
         self.__ghost_images = []
+        self._num_ghosts = num_ghosts
 
         max_ghost_width = 0
         for file in os.listdir(ghost_image_paths):
@@ -117,7 +118,7 @@ class GhostEffect(ImageEffect):
         # how many ghosts to place
         num_ghosts_to_place = min(
             len(self.__ghost_images),
-            2,  # we dont want to overload the image with ghosts
+            self._num_ghosts,  # we dont want to overload the image with ghosts
             math.floor(img.width / self.__max_ghost_width),
         )
 
