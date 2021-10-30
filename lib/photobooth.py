@@ -280,8 +280,6 @@ class Photobooth(object):
             GhostEffect(3),
             SketchyEyeEffect(),
             SwirlFaceEffect(1),
-            SaturationEffect(0.65),
-            SaturationEffect(0.35),
             SwirlFaceEffect(0.5),
             SwirlFaceEffect(4),
             TvStaticEffect(1000),
@@ -314,7 +312,9 @@ class Photobooth(object):
 
         # run saturation effect at the end, maybe
         if random.randint(0, 100) < 50:
-            print("selected effect SaturationEffect")
-            selected_effects.append(SaturationEffect(0.7))
+            saturation_effect = random.random()
+            print(f"selected effect SaturationEffect with value {saturation_effect}")
+
+            selected_effects.append(SaturationEffect(saturation_effect))
 
         return selected_effects
