@@ -291,6 +291,8 @@ class Photobooth(object):
             GhostEffect(1),
             GhostEffect(4),
             SketchyEyeEffect(),
+            SketchyEyeEffect(),
+            SketchyEyeEffect(),
             SwirlFaceEffect(1),
             SwirlFaceEffect(0.5),
             SwirlFaceEffect(4),
