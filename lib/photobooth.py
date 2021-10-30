@@ -287,13 +287,19 @@ class Photobooth(object):
         chance_for_next_effect = 100
 
         selected_effects = []
+        selected_classes = set()
 
         while len(selected_effects) < 4 and random.randint(0, 100) < chance_for_next_effect:
             index = random.randint(0, len(all_effects) - 1)
             selected = all_effects[index]
             print(f"selected effect {selected.__class__.__name__}")
-            selected_effects.append(selected)
+            if selected.__class__ in selected_classes:
+                print("effect class already selected with other parameters. Skipping")
+                all_effects.remove(selected)
+                continue
 
+            selected_effects.append(selected)
+            selected_classes.add(selected.__class__)
             all_effects.remove(selected)
 
             # special case ghost effect since having it before other effects
