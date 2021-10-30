@@ -19,6 +19,7 @@ from lib.effect import (
     SaturationEffect,
     SketchyEyeEffect,
     SwirlFaceEffect,
+    TvStaticEffect,
 )
 
 
@@ -157,13 +158,9 @@ class Photobooth(object):
 
             # setup the final image
             result_width = image_width + (2 * self.image_border_size)
-            result_height = (image_height * self.num_photos) + (
-                (self.num_photos + 1) * self.image_border_size
-            )
+            result_height = (image_height * self.num_photos) + ((self.num_photos + 1) * self.image_border_size)
             print(f"final image size: {result_width}x{result_height}")
-            final_image = Image.new(
-                "RGBA", (result_width, result_height), (255, 255, 255, 255)
-            )
+            final_image = Image.new("RGBA", (result_width, result_height), (255, 255, 255, 255))
 
             # 2b) for each image:
             #   - determine which spooky effects to run
@@ -173,9 +170,7 @@ class Photobooth(object):
             for context in processing_contexts:
                 effects = self.__determine_effects_to_run()
 
-                print(
-                    f"running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}"
-                )
+                print(f"running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}")
                 for effect in effects:
                     context.img = effect.process_image(context)
 
@@ -238,9 +233,7 @@ class Photobooth(object):
             print(f"taking {sub_text} in {self.photo_delay_seconds} seconds")
 
             while (datetime.now() - start_time).seconds < self.photo_delay_seconds:
-                time_left = int(
-                    self.photo_delay_seconds - (datetime.now() - start_time).seconds
-                )
+                time_left = int(self.photo_delay_seconds - (datetime.now() - start_time).seconds)
                 self.display.put_text(str(time_left), sub_text)
                 # print(f"time left: {time_left}")
                 # update image :D
@@ -261,17 +254,13 @@ class Photobooth(object):
         print("all photos taken!")
         return imgs
 
-    def __setup_images_for_processing(
-        self, imgs: List[Image.Image]
-    ) -> Tuple[int, int, List[ImageProcessingContext]]:
+    def __setup_images_for_processing(self, imgs: List[Image.Image]) -> Tuple[int, int, List[ImageProcessingContext]]:
         prev_img = None
 
         contexts = []
         for img in imgs:
             if prev_img is not None and img.size != prev_img.size:
-                raise ValueError(
-                    f"the image {img.filename} is not the same size as {prev_img.filename}"
-                )
+                raise ValueError(f"the image {img.filename} is not the same size as {prev_img.filename}")
 
             contexts.append(self.__create_context_from_image(img))
 
@@ -294,10 +283,7 @@ class Photobooth(object):
 
         selected_effects = []
 
-        while (
-            len(selected_effects) < 4
-            and random.randint(0, 100) < chance_for_next_effect
-        ):
+        while len(selected_effects) < 4 and random.randint(0, 100) < chance_for_next_effect:
             index = random.randint(0, len(all_effects) - 1)
             selected = all_effects[index]
             print(f"selected effect {selected.__class__.__name__}")
