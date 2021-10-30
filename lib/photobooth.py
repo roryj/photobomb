@@ -321,7 +321,7 @@ class Photobooth(object):
             chance_for_next_effect = chance_for_next_effect * (2 / 3)
 
         # run tv static effect at the end, maybe
-        if random.randint(0, 100) < 15:
+        if random.randint(0, 100) < 25:
             sigma_value = random.randint(500, 1000)
             print(f"selected effect TvStaticEffect with value {sigma_value}")
             selected_effects.append(TvStaticEffect(sigma_value))
