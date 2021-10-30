@@ -282,8 +282,6 @@ class Photobooth(object):
             SwirlFaceEffect(1),
             SwirlFaceEffect(0.5),
             SwirlFaceEffect(4),
-            TvStaticEffect(1000),
-            TvStaticEffect(500),
         ]
         chance_for_next_effect = 100
 
@@ -310,9 +308,15 @@ class Photobooth(object):
 
             chance_for_next_effect = chance_for_next_effect * (2 / 3)
 
+        # run tv static effect at the end, maybe
+        if random.randint(0, 100) < 10:
+            sigma_value = random.randint(500, 1000)
+            print(f"selected effect TvStaticEffect with value {sigma_value}")
+            selected_effects.append(TvStaticEffect(sigma_value))
+
         # run saturation effect at the end, maybe
-        if random.randint(0, 100) < 50:
-            saturation_effect = random.random()
+        if random.randint(0, 100) < 40:
+            saturation_effect = random.uniform(0.4, 0.9)
             print(f"selected effect SaturationEffect with value {saturation_effect}")
 
             selected_effects.append(SaturationEffect(saturation_effect))
