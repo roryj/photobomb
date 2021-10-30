@@ -203,11 +203,11 @@ class Photobooth(object):
 
             self.display.clear_text()
 
-            end_time = datetime.now() + timedelta(seconds=30)
+            end_time = datetime.now() + timedelta(seconds=60)
 
             while (now := datetime.now()) < end_time:
                 text = "Still printing"
-                for dot in range(now.second % 4):
+                for _ in range(now.second % 4):
                     text += "."
                 self.display.clear_text()
                 self.display.put_text(text)
