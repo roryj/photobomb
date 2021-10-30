@@ -15,6 +15,7 @@ from lib.effect import (
     SaturationEffect,
     SketchyEyeEffect,
     SwirlFaceEffect,
+    TvStaticEffect,
 )
 
 
@@ -26,7 +27,8 @@ def main():
         required=True,
     )
     parser.add_argument(
-        "--output-dir", help="the name of the output directory",
+        "--output-dir",
+        help="the name of the output directory",
         default="output",
     )
     parser.add_argument(
@@ -34,7 +36,7 @@ def main():
         nargs="+",
         help="""the effects to apply on an image. Will be
                 processed in order they are defined.
-                One of -> [identify-face, swirl, ghost, saturation, eyes]""",
+                One of -> [identify-face, swirl, ghost, saturation, eyes, noise]""",
         required=True,
     )
     parser.add_argument(
@@ -79,6 +81,9 @@ def main():
         elif effect == "eyes":
             print("eye effect added")
             image_processor = SketchyEyeEffect()
+        elif effect == "noise":
+            print("noise effect added")
+            image_processor = TvStaticEffect(500)
         else:
             raise Exception(f"the effect {effect} is currently unsupported")
 
