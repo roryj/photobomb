@@ -184,6 +184,28 @@ class SaturationEffect(ImageEffect):
         return enhancer.enhance(self.__saturation_percentage)
 
 
+class TvStaticEffect(ImageEffect):
+    """Gives a colour tv static like effect, something real spooky"""
+
+    def __init__(self, sigma, static_tv_image_path="./resources/tv_static.jpg"):
+        self.__sigma = sigma
+        self._tv_static_image: Image = Image.open(static_tv_image_path)
+        super().__init__()
+
+    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+        img = context.img
+        static_img = Image.effect_noise(self._tv_static_image.size, self.__sigma)
+
+        self._tv_static_image.putalpha(static_img)
+
+        resized = self._tv_static_image.resize(img.size)
+
+        # we also need to convert the original image to RGBA if it is not already
+        rgba_img = img.convert("RGBA")
+
+        return Image.blend(rgba_img, resized, 0.3)
+
+
 class SwirlFaceEffect(ImageEffect):
     def __init__(self, swirl_strength=5):
         self.__swirl_strength = swirl_strength
