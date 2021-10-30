@@ -278,6 +278,11 @@ class Photobooth(object):
             GhostEffect(),
             SketchyEyeEffect(),
             SwirlFaceEffect(1),
+            SaturationEffect(0.65),
+            SaturationEffect(0.35),
+            SwirlFaceEffect(0.5),
+            SwirlFaceEffect(4),
+            TvStaticEffect(1000),
         ]
         chance_for_next_effect = 100
 
