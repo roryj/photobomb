@@ -275,7 +275,9 @@ class Photobooth(object):
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:
         all_effects = [
-            GhostEffect(),
+            GhostEffect(2),
+            GhostEffect(1),
+            GhostEffect(3),
             SketchyEyeEffect(),
             SwirlFaceEffect(1),
             SaturationEffect(0.65),
@@ -283,6 +285,7 @@ class Photobooth(object):
             SwirlFaceEffect(0.5),
             SwirlFaceEffect(4),
             TvStaticEffect(1000),
+            TvStaticEffect(500),
         ]
         chance_for_next_effect = 100
 
