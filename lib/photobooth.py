@@ -78,15 +78,21 @@ class PhotoPrinter(object):
         self.should_print = should_print
         super().__init__()
 
-    def __get_output_file_path(self) -> str:
-        curr_time = datetime.now().strftime("%d_%m_%Y-%H_%M_%S")
-        output_file_name = f"{self.output_file_prefix}_{curr_time}"
+    def __get_output_file_path(self, now, prefix="") -> str:
+        curr_time = now.strftime("%d_%m_%Y-%H_%M_%S")
+        output_file_name = f"{prefix}{self.output_file_prefix}_{curr_time}"
         return f"{self.output_dir}/{output_file_name}.{self.image_type}"
 
-    def print(self, img: Image.Image):
-        output_file_path = self.__get_output_file_path()
+    def save_unspooked(self, now, img: Image.Image):
+        self.save(img, self.__get_output_file_path(now, prefix="unspooked_"))
+
+    def save(self, img: Image.Image, output_file_path):
         print(f"Saving the image to {output_file_path}")
         img.save(output_file_path, self.image_type.upper(), quality=95)
+
+    def save_and_print(self, now, img: Image.Image):
+        output_file_path = self.__get_output_file_path(now)
+        self.save(img, output_file_path)
 
         if self.should_print:
             print("Attempting to print the image")
@@ -160,6 +166,7 @@ class Photobooth(object):
             result_width = image_width + (2 * self.image_border_size)
             result_height = (image_height * self.num_photos) + ((self.num_photos + 1) * self.image_border_size)
             print(f"final image size: {result_width}x{result_height}")
+            unspooked_image = Image.new("RGBA", (result_width, result_height), (255, 255, 255, 255))
             final_image = Image.new("RGBA", (result_width, result_height), (255, 255, 255, 255))
 
             # 2b) for each image:
@@ -168,14 +175,17 @@ class Photobooth(object):
             #   - add to the final image
             count = 0
             for context in processing_contexts:
+                x = self.image_border_size
+                y = (count * image_height) + ((count + 1) * self.image_border_size)
+
+                unspooked_image.paste(context.img, (x, y))
+
                 effects = self.__determine_effects_to_run()
 
                 print(f"running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}")
                 for effect in effects:
                     context.img = effect.process_image(context)
 
-                x = self.image_border_size
-                y = (count * image_height) + ((count + 1) * self.image_border_size)
                 print(f"putting image of size {context.img.size} into: {x},{y}")
 
                 final_image.paste(context.img, (x, y))
@@ -186,7 +196,9 @@ class Photobooth(object):
 
             # 3) print images!
             print("Printing the resulting image")
-            self.printer.print(final_image)
+            now = datetime.now()
+            self.printer.save_unspooked(now, unspooked_image)
+            self.printer.save_and_print(now, final_image)
             print("Printing complete!")
 
             self.display.clear_text()
