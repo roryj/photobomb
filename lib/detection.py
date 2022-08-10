@@ -29,6 +29,12 @@ class FaceMetadata(object):
         bottom_lip = self.get_facial_feature_points("bottom_lip")
         return top_lip + bottom_lip
 
+    def get_nose_tip(self) -> (int, int):
+        return self.get_facial_feature_points("nose_tip")[2]
+
+    def get_middle_of_nose(self) -> (int, int):
+        return self.get_facial_feature_points("nose_bridge")[1]
+
     def get_facial_feature_points(self, facial_feature: str) -> [(int, int)]:
         if facial_feature not in self.__facial_features:
             raise Exception(f"the feature {facial_feature} was not detected")

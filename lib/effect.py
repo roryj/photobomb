@@ -321,3 +321,50 @@ class SketchyEyeEffect(ImageEffect):
         radius = max((max_x - min_x) / 2, (max_y - min_y) / 2)
 
         return center_x, center_y, radius
+
+class PigNoseEffect(ImageEffect):
+    def __init__(self, pig_nose_path="./resources/facial_accessories/Pig_Nose.png"):
+        img = Image.open(pig_nose_path)
+        self.__pig_nose_image = img
+        self.__pig_nose_width_ratio = img.width / img.height
+        super().__init__()
+
+    def process_image(self, context: ImageProcessingContext):
+        img = context.img.convert("RGBA")
+        draw = ImageDraw.Draw(img)
+
+        all_piggies_image = Image.new("RGBA", img.size, (255, 255, 255, 0))
+
+        for face in context.faces:
+            nose = face.get_nose_tip()
+            bridge = face.get_middle_of_nose()
+
+            actual_nose_height = abs(bridge[1] - nose[1])
+            pig_nose_height = int(actual_nose_height * 4 / 3)
+            pig_nose_width = int(pig_nose_height * self.__pig_nose_width_ratio)
+
+            pig_nose_top = int(bridge[1])
+            pig_nose_bottom = int(pig_nose_top + pig_nose_height)
+            pig_nose_left = int(nose[0] - pig_nose_width / 2)
+            pig_nose_right = int(nose[0] + pig_nose_width / 2)
+
+            pig_nose = self.__pig_nose_image.convert("RGBA").resize((pig_nose_width, pig_nose_height))
+
+            print(f'box: {(pig_nose_left, pig_nose_top, pig_nose_right, pig_nose_bottom)}')
+            print(f'image size: {img.size}')
+            all_piggies_image.paste(pig_nose, (pig_nose_left, pig_nose_top))
+
+        # # Create mask that has the same setup
+        piggy_mask = Image.new("L", img.size, 0)
+        for x in range(0, piggy_mask.width):
+            for y in range(0, piggy_mask.height):
+                r, g, b, a = all_piggies_image.getpixel((x, y))
+                # 'a' is the alpha value of the combinaton of all pig images at point x,y
+                # An alpha of 0 means the pixel is transparent, which we use to create an image
+                # mask only where the ghost pixels are located
+                if a == 0:
+                    continue
+                piggy_mask.putpixel((x, y), 222)
+        blur_mask = piggy_mask.filter(ImageFilter.BLUR)
+
+        return Image.composite(all_piggies_image, img, blur_mask)

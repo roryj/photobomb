@@ -7,3 +7,4 @@ photo_booth_pic.png
 result.png
 output
 *.egg-info/
+node_modules/

@@ -19,6 +19,7 @@ from lib.effect import (
     SaturationEffect,
     SketchyEyeEffect,
     SwirlFaceEffect,
+    PigNoseEffect,
 )
 
 
@@ -83,7 +84,7 @@ class PhotoPrinter(object):
         return f"{self.output_dir}/{output_file_name}.{self.image_type}"
 
     def save_unspooked(self, now, img: Image.Image):
-        self.save(img, self.__get_output_file_path(now, prefix="unspooked_"))
+        self.save(img, self.__get_output_file_path(now, prefix="original_"))
 
     def save(self, img: Image.Image, output_file_path):
         print(f"Saving the image to {output_file_path}")
@@ -113,6 +114,7 @@ class Photobooth(object):
         num_photos: int,
         image_border_size: int,
         photo_delay_seconds: float,
+        piggy: bool,
     ):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
@@ -124,6 +126,7 @@ class Photobooth(object):
         self.image_border_size = image_border_size
         self.photo_delay_seconds = photo_delay_seconds
         self.is_running = False
+        self.piggy = piggy
 
     def run(self):
         """
@@ -151,7 +154,10 @@ class Photobooth(object):
             # 1) take the pictures!
             imgs = self.__take_pictures()
 
-            self.display.put_text("Detecting ghosts...")
+            if self.piggy:
+                self.display.put_text("Finding little piggies...")
+            else:
+                self.display.put_text("Detecting ghosts...")
 
             # 2) process images
             # 2a) convert images to image processing context
@@ -261,8 +267,11 @@ class Photobooth(object):
                 # update image :D
                 time.sleep(1)
 
-            if photo_num == 3:
-                self.display.put_text("Die!", sub_text)
+            if photo_num == 3 :
+                if self.piggy:
+                    self.display.put_text("Bacon!", sub_text)
+                else:
+                    self.display.put_text("Die!", sub_text)
             else:
                 self.display.put_text("Cheese!", sub_text)
 
@@ -300,6 +309,9 @@ class Photobooth(object):
         return ImageProcessingContext(img, img_data, faces)
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:
+        if self.piggy:
+            return [PigNoseEffect(), GhostEffect("./resources/pigs/")]
+
         all_effects = [
             GhostEffect(),
             SketchyEyeEffect(),

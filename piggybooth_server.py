@@ -13,22 +13,19 @@ from lib.photobooth import (
 
 
 def main():
-    print("Starting the photobooth server...")
-    print(
-        """
-  .-')     _ (`-.                           .-. .-')                     .-. .-')                             .-') _    ('-. .-.
- ( OO ).  ( (OO  )                          \  ( OO )                    \  ( OO )                           (  OO) )  ( OO )  /
-(_)---\_)_.`     \ .-'),-----.  .-'),-----. ,--. ,--.   ,--.   ,--.       ;-----.\  .-'),-----.  .-'),-----. /     '._ ,--. ,--.
-/    _ |(__...--''( OO'  .-.  '( OO'  .-.  '|  .'   /    \  `.'  /        | .-.  | ( OO'  .-.  '( OO'  .-.  '|'--...__)|  | |  |
-\  :` `. |  /  | |/   |  | |  |/   |  | |  ||      /,  .-')     /         | '-' /_)/   |  | |  |/   |  | |  |'--.  .--'|   .|  |
- '..`''.)|  |_.' |\_) |  |\|  |\_) |  |\|  ||     ' _)(OO  \   /          | .-. `. \_) |  |\|  |\_) |  |\|  |   |  |   |       |
-.-._)   \|  .___.'  \ |  | |  |  \ |  | |  ||  .   \   |   /  /\_         | |  \  |  \ |  | |  |  \ |  | |  |   |  |   |  .-.  |
-\       /|  |        `'  '-'  '   `'  '-'  '|  |\   \  `-./  /.__)        | '--'  /   `'  '-'  '   `'  '-'  '   |  |   |  | |  |
- `-----' `--'          `-----'      `-----' `--' '--'    `--'             `------'      `-----'      `-----'    `--'   `--' `--'
-    """
-    )
+    print("Starting the PIGGYbooth server...")
+    print("""
+ ____ ____   ____   ____  __ __  ____    ___    ___   ______  __ __ 
+|    \    | /    | /    ||  |  ||    \  /   \  /   \ |      ||  |  |
+|  o  )  | |   __||   __||  |  ||  o  )|     ||     ||      ||  |  |
+|   _/|  | |  |  ||  |  ||  ~  ||     ||  O  ||  O  ||_|  |_||  _  |
+|  |  |  | |  |_ ||  |_ ||___, ||  O  ||     ||     |  |  |  |  |  |
+|  |  |  | |     ||     ||     ||     ||     ||     |  |  |  |  |  |
+|__| |____||___,_||___,_||____/ |_____| \___/  \___/   |__|  |__|__|
+                                                                    
+""")
 
-    parser = argparse.ArgumentParser(description="Some spooky ass photobombing")
+    parser = argparse.ArgumentParser(description="Some piggy ass photobombing")
     parser.add_argument(
         "--num-photos",
         default=4,
@@ -58,9 +55,9 @@ def main():
 
     args = parser.parse_args()
 
-    print(f"Starting the photobooth with params: {args}")
+    print(f"Starting the piggybooth with params: {args}")
 
-    printer = PhotoPrinter("./output", "photobooth", "png", args.should_print)
+    printer = PhotoPrinter("./output", "piggybooth", "png", args.should_print)
 
     webcam_to_use = int(args.use_webcam)
 
@@ -74,13 +71,13 @@ def main():
         int(args.num_photos),
         int(args.border_size),
         float(args.photo_delay),
-        False
+        True
     )
 
     print("Server starting. Waiting on enter press...")
     while True:
         display.clear_text()
-        display.put_text("Press ENTER to get SPOOKED!")
+        display.put_text("Press ENTER my PIGGIES!")
         _ = input("waiting for input...\n")
         print("detected key press!")
         print("")
