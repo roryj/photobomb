@@ -20,6 +20,8 @@ from lib.effect import (
     SketchyEyeEffect,
     SwirlFaceEffect,
     PigNoseEffect,
+    FlyingPigsEffect,
+    PigLogoEffect,
 )
 
 
@@ -194,10 +196,8 @@ class Photobooth(object):
 
                 effects = self.__determine_effects_to_run()
 
-                print(
-                    f"running effects {[e.__class__.__name__ for e in effects]} on {context.filename()}"
-                )
                 for effect in effects:
+                    print(f"Running effect {effect.__class__.__name__} on {context.filename()}")
                     context.img = effect.process_image(context)
 
                 print(f"putting image of size {context.img.size} into: {x},{y}")
@@ -206,21 +206,21 @@ class Photobooth(object):
                 count += 1
 
             self.display.clear_text()
-            self.display.put_text("Printing your pictures!")
+            self.display.put_text("Sorry no printing :(")
 
             # 3) print images!
             print("Printing the resulting image")
             now = datetime.now()
             self.printer.save_unspooked(now, unspooked_image)
             self.printer.save_and_print(now, final_image)
-            print("Printing complete!")
+            print("Sorry no printing :(")
 
             self.display.clear_text()
 
-            end_time = datetime.now() + timedelta(seconds=30)
+            end_time = datetime.now() + timedelta(seconds=3)
 
             while (now := datetime.now()) < end_time:
-                text = "Still printing"
+                text = "Sorry no printing :("
                 for dot in range(now.second % 4):
                     text += "."
                 self.display.clear_text()
@@ -291,26 +291,28 @@ class Photobooth(object):
         prev_img = None
 
         contexts = []
+        image_num = 1
         for img in imgs:
             if prev_img is not None and img.size != prev_img.size:
                 raise ValueError(
                     f"the image {img.filename} is not the same size as {prev_img.filename}"
                 )
 
-            contexts.append(self.__create_context_from_image(img))
+            contexts.append(self.__create_context_from_image(img, image_num))
+            image_num += 1
 
             prev_img = img
 
         return prev_img.width, prev_img.height, contexts
 
-    def __create_context_from_image(self, img: Image) -> ImageProcessingContext:
+    def __create_context_from_image(self, img: Image, image_num: int) -> ImageProcessingContext:
         img_data = np.array(img)
         faces = find_faces_from_array(img_data)
-        return ImageProcessingContext(img, img_data, faces)
+        return ImageProcessingContext(img, img_data, faces, image_num)
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:
         if self.piggy:
-            return [PigNoseEffect(), GhostEffect("./resources/pigs/")]
+            return [FlyingPigsEffect(), PigNoseEffect(), PigLogoEffect()]
 
         all_effects = [
             GhostEffect(),
