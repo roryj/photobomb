@@ -23,7 +23,8 @@ from lib.effect import (
     FlyingPigsEffect,
     PigLogoEffect,
 )
-
+from lib.mms import send_text
+from lib.s3 import upload_file
 
 class PhotoTaker(object):
     def __init__(self):
@@ -86,7 +87,9 @@ class PhotoPrinter(object):
         return f"{self.output_dir}/{output_file_name}.{self.image_type}"
 
     def save_unspooked(self, now, img: Image.Image):
-        self.save(img, self.__get_output_file_path(now, prefix="original_"))
+        path = self.__get_output_file_path(now, prefix="original_")
+        self.save(img, path)
+        return path
 
     def save(self, img: Image.Image, output_file_path):
         print(f"Saving the image to {output_file_path}")
@@ -105,6 +108,7 @@ class PhotoPrinter(object):
                 print("Printing failed :(")
         else:
             print("Not printing!")
+        return output_file_path
 
 
 class Photobooth(object):
@@ -130,7 +134,7 @@ class Photobooth(object):
         self.is_running = False
         self.piggy = piggy
 
-    def run(self):
+    def run(self, phone_number):
         """
         run:
             to create a photobooth image, we need to:
@@ -211,9 +215,12 @@ class Photobooth(object):
             # 3) print images!
             print("Printing the resulting image")
             now = datetime.now()
-            self.printer.save_unspooked(now, unspooked_image)
-            self.printer.save_and_print(now, final_image)
+            unspooked_path = self.printer.save_unspooked(now, unspooked_image)
+            spooked_path = self.printer.save_and_print(now, final_image)
             print("Sorry no printing :(")
+            unspooked_url = upload_file(unspooked_path)
+            spooked_url = upload_file(spooked_path)
+            send_text(phone_number, unspooked_url, spooked_url)
 
             self.display.clear_text()
 
@@ -229,6 +236,7 @@ class Photobooth(object):
 
             self.display.clear_text()
             self.display.put_text("All done!")
+            time.sleep(3)
 
         except Exception as e:
             print(f"An exception occurred running the photobooth: {e}")
@@ -237,6 +245,7 @@ class Photobooth(object):
         self.is_running = False
 
         print("Photobooth workflow done")
+        return (unspooked_path, spooked_path)
 
     def __take_pictures(self) -> List[Image.Image]:
         """
