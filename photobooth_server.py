@@ -85,7 +85,7 @@ def main():
 
 
 class PhotoboothServer:
-    empty_prompt = "ENTER your number to get SPOOKED!"
+    empty_prompt = "ENTER your phone number to get SPOOKED!"
     same_input_wait = datetime.timedelta(seconds = 0.5)
 
     def __init__(self, photobooth, display):
@@ -133,7 +133,7 @@ class PhotoboothServer:
             print(f'SKIP INPUT {new_input}')
             return
     
-        if new_input in [str(n) for n in range(0, 9)]:
+        if new_input in [str(n) for n in range(0, 10)]:
             print(f'Read number character {new_input}')
             self.__on_input_updated(new_input, self.input_so_far + new_input)
             print(f'Input so far is {self.input_so_far}')

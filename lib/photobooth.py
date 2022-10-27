@@ -5,6 +5,7 @@ from typing import List, Tuple
 from abc import abstractmethod
 from datetime import datetime, timedelta
 import traceback
+import requests
 
 import cv2
 import numpy as np
@@ -209,8 +210,8 @@ class Photobooth(object):
                 final_image.paste(context.img, (x, y))
                 count += 1
 
-            self.display.clear_text()
-            self.display.put_text("Sorry no printing :(")
+            #self.display.clear_text()
+            #self.display.put_text("Sorry no printing :(")
 
             # 3) print images!
             print("Printing the resulting image")
@@ -230,8 +231,8 @@ class Photobooth(object):
                 text = "Sorry no printing :("
                 for dot in range(now.second % 4):
                     text += "."
-                self.display.clear_text()
-                self.display.put_text(text)
+                #self.display.clear_text()
+                #self.display.put_text(text)
                 time.sleep(1)
 
             self.display.clear_text()
@@ -275,6 +276,8 @@ class Photobooth(object):
                 # print(f"time left: {time_left}")
                 # update image :D
                 time.sleep(1)
+
+            requests.post("http://192.168.86.20:8008/event", json={'name': 'photobooth', 'state': f'photo{photo_num}'})
 
             if photo_num == 3 :
                 if self.piggy:
