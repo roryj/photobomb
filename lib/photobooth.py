@@ -242,6 +242,8 @@ class Photobooth(object):
         except Exception as e:
             print(f"An exception occurred running the photobooth: {e}")
             traceback.print_exc()
+            self.is_running = False
+            return ('','')
 
         self.is_running = False
 
@@ -277,7 +279,10 @@ class Photobooth(object):
                 # update image :D
                 time.sleep(1)
 
-            requests.post("http://192.168.86.20:8008/event", json={'name': 'photobooth', 'state': f'photo{photo_num}'})
+            try:
+                requests.post("http://localhost:8008/event", json={'name': 'photobooth', 'state': f'photo{photo_num}'})
+            except:
+                print('Error sending post request')
 
             if photo_num == 3 :
                 if self.piggy:
