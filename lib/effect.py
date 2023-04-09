@@ -500,3 +500,132 @@ class FlyingPigsEffect(ImageEffect):
         blur_mask = piggy_mask.filter(ImageFilter.BLUR)
 
         return Image.composite(all_piggies_image, img, blur_mask)
+
+class FloatingCaseyEffect(ImageEffect):
+    def __init__(self, pig_path="./resources/pigs/flying-pig.png", reverse_pig_path="./resources/pigs/flying-pig-reverse.png"):
+        self.pig_image = Image.open(pig_path)
+        self.reverse_pig = Image.open(reverse_pig_path)
+        self.pig_width_ratio = self.pig_image.width / self.pig_image.height
+        super().__init__()
+
+    def process_image(self, context: ImageProcessingContext):
+        insert_left = bool(random.getrandbits(1))
+        insert_right = bool(random.getrandbits(1))
+        reverse_pigs = bool(random.getrandbits(1))
+
+        if not insert_left and not insert_right:
+            return context.img
+
+        img = context.img.convert("RGBA")
+        draw = ImageDraw.Draw(img)
+
+        min_size = int(img.width / 8)
+        max_size = int(img.width / 4)
+        padding = int(img.height / 48)
+
+        size = random.randint(min_size, max_size)
+
+        pig_image = self.pig_image.convert("RGBA").resize((size, size))
+        reverse_pig = self.reverse_pig.convert("RGBA").resize((size, size))
+
+        all_piggies_image = Image.new("RGBA", img.size, (255, 255, 255, 0))
+
+        if insert_left:
+            max_pos = int(img.width / 3)
+
+            print(f'Size {size}, Left pos f{(max_pos)}')
+
+            min_top = padding
+            max_top = int(img.height / 2) - size
+            min_left = padding
+            max_left = max_pos - size
+
+            print(f'tops {min_top, max_top}, lefts {min_left, max_left}')
+
+            top = random.randint(min_top, max_top)
+            left = random.randint(min_left, max_left)
+
+            print(f'Put left flying pig at {(left, top)} with size {size}')
+            if reverse_pigs:
+                all_piggies_image.paste(pig_image, (left, top))
+            else:
+                all_piggies_image.paste(reverse_pig, (left, top))
+
+        if insert_right:
+            min_pos = int(2 * img.width / 3)
+
+            print(f'Size {size}, Right pos f{(min_pos)}')
+
+            min_top = padding
+            max_top = int(img.height / 2) - size
+            min_left = min_pos
+            max_left = img.width - padding - size
+
+            print(f'tops {min_top, max_top}, right {min_left, max_left}')
+
+            top = random.randint(min_top, max_top)
+            left = random.randint(min_left, max_left)
+
+            print(f'Put left flying pig at {(left, top)} with size {size}')
+            if reverse_pigs:
+                all_piggies_image.paste(reverse_pig, (left, top))
+            else:
+                all_piggies_image.paste(pig_image, (left, top))
+
+        # # Create mask that has the same setup
+        piggy_mask = Image.new("L", img.size, 0)
+        for x in range(0, piggy_mask.width):
+            for y in range(0, piggy_mask.height):
+                r, g, b, a = all_piggies_image.getpixel((x, y))
+                # 'a' is the alpha value of the combinaton of all pig images at point x,y
+                # An alpha of 0 means the pixel is transparent, which we use to create an image
+                # mask only where the ghost pixels are located
+                if a == 0:
+                    continue
+                piggy_mask.putpixel((x, y), 175)
+        blur_mask = piggy_mask.filter(ImageFilter.BLUR)
+
+        return Image.composite(all_piggies_image, img, blur_mask)
+
+class CaseyLogoEffect(ImageEffect):
+    def __init__(self, pig_path="./resources/pigs/hog-hole-22.png", num_photos=4):
+        self.pig_image = Image.open(pig_path)
+        self.pig_width_ratio = self.pig_image.width / self.pig_image.height
+        self.num_photos = num_photos
+        super().__init__()
+
+    def process_image(self, context: ImageProcessingContext):
+        if self.num_photos != context.image_num:
+            print(f'Skipping CaseyLogoEffect for image number {context.image_num}')
+            return context.img
+
+        img = context.img.convert("RGBA")
+        draw = ImageDraw.Draw(img)
+
+        size = int(img.width / 7)
+        padding = int(img.height / 16)
+
+        resized = self.pig_image.convert("RGBA").resize((size, size))
+
+        all_piggies_image = Image.new("RGBA", img.size, (255, 255, 255, 0))
+
+        left = img.width - padding - size
+        top = img.height - padding - size
+
+        print(f'Put image at {(left, top)} with size {size}')
+        all_piggies_image.paste(resized, (left, top))
+
+        # # Create mask that has the same setup
+        piggy_mask = Image.new("L", img.size, 0)
+        for x in range(0, piggy_mask.width):
+            for y in range(0, piggy_mask.height):
+                r, g, b, a = all_piggies_image.getpixel((x, y))
+                # 'a' is the alpha value of the combinaton of all pig images at point x,y
+                # An alpha of 0 means the pixel is transparent, which we use to create an image
+                # mask only where the ghost pixels are located
+                if a == 0:
+                    continue
+                piggy_mask.putpixel((x, y), 175)
+        blur_mask = piggy_mask.filter(ImageFilter.BLUR)
+
+        return Image.composite(all_piggies_image, img, blur_mask)

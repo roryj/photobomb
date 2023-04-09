@@ -9,11 +9,11 @@ phlo_id = '54f33751-1f35-47a2-be06-e894360a22c0'
 phlo_client = plivo.phlo.RestClient(auth_id=auth_id, auth_token=auth_token)
 phlo = phlo_client.phlo.get(phlo_id)
 
-def send_text(number, unspooked_url, spooked_url, preview_image='https://is4-ssl.mzstatic.com/image/thumb/Purple128/v4/72/d9/21/72d92136-dd8b-42c0-8d87-c242fa6468c7/source/256x256bb.jpg'):
+def send_text(number, mms_content, preview_image):
     number = "+1" + number
     payload = {"to" : number, 
            "imageUrl": preview_image,
-           "message": f"Your Halloween Photobooth photos are ready! Download with the following links.\n\nSpooked: {spooked_url}\n\nOriginal: {unspooked_url}"}
-    print(f'Sending MMS to number {number}')
+           "message": mms_content}
+    print(f'Sending MMS to number {number}: {payload}')
     response = phlo.run(**payload)
     print(f'Plivo response: {response}')

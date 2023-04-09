@@ -23,9 +23,12 @@ from lib.effect import (
     PigNoseEffect,
     FlyingPigsEffect,
     PigLogoEffect,
+    FloatingCaseyEffect,
+    CaseyLogoEffect,
 )
 from lib.mms import send_text
 from lib.s3 import upload_file
+from lib.mode import Mode
 
 class PhotoTaker(object):
     def __init__(self):
@@ -121,7 +124,8 @@ class Photobooth(object):
         num_photos: int,
         image_border_size: int,
         photo_delay_seconds: float,
-        piggy: bool,
+        should_send_event: bool,
+        mode: str,
     ):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
@@ -131,9 +135,10 @@ class Photobooth(object):
         self.printer = printer
         self.num_photos = num_photos
         self.image_border_size = image_border_size
-        self.photo_delay_seconds = photo_delay_seconds
+        self.photo_delay_seconds = int(photo_delay_seconds)
         self.is_running = False
-        self.piggy = piggy
+        self.should_send_event = should_send_event
+        self.mode = mode
 
     def run(self, phone_number):
         """
@@ -157,16 +162,17 @@ class Photobooth(object):
 
         self.is_running = True
         try:
+            # 0) Tell the user what we're up to!
+            self.display.put_text("The Photo Booth will take 4 photos")
+            time.sleep(4)
+            self.display.put_text("GET READY!")
+            time.sleep(4)
 
             # 1) take the pictures!
             imgs = self.__take_pictures()
 
-            if self.piggy:
-                self.display.put_text("Finding little piggies...")
-            else:
-                self.display.put_text("Detecting ghosts...")
-
             # 2) process images
+            self.display.put_text(self.mode.processing_images_prompt())
             # 2a) convert images to image processing context
             (
                 image_width,
@@ -210,34 +216,24 @@ class Photobooth(object):
                 final_image.paste(context.img, (x, y))
                 count += 1
 
-            #self.display.clear_text()
-            #self.display.put_text("Sorry no printing :(")
-
             # 3) print images!
             print("Printing the resulting image")
             now = datetime.now()
             unspooked_path = self.printer.save_unspooked(now, unspooked_image)
             spooked_path = self.printer.save_and_print(now, final_image)
-            print("Sorry no printing :(")
+
+            # 4) Upload images!
             unspooked_url = upload_file(unspooked_path)
             spooked_url = upload_file(spooked_path)
-            send_text(phone_number, unspooked_url, spooked_url)
 
-            self.display.clear_text()
-
-            end_time = datetime.now() + timedelta(seconds=3)
-
-            while (now := datetime.now()) < end_time:
-                text = "Sorry no printing :("
-                for dot in range(now.second % 4):
-                    text += "."
-                #self.display.clear_text()
-                #self.display.put_text(text)
-                time.sleep(1)
+            # 5) Send the user a text with download links!
+            mms_content = self.mode.get_mms_content(unspooked_url, spooked_url)
+            preview_image = self.mode.get_mms_preview_image()
+            send_text(phone_number, mms_content, preview_image)
 
             self.display.clear_text()
             self.display.put_text("All done!")
-            time.sleep(3)
+            time.sleep(3.5)
 
         except Exception as e:
             print(f"An exception occurred running the photobooth: {e}")
@@ -270,27 +266,22 @@ class Photobooth(object):
             sub_text = f"photo {photo_num}/{self.num_photos}"
             print(f"taking {sub_text} in {self.photo_delay_seconds} seconds")
 
-            while (datetime.now() - start_time).seconds < self.photo_delay_seconds:
-                time_left = int(
-                    self.photo_delay_seconds - (datetime.now() - start_time).seconds
-                )
+            time_left = self.photo_delay_seconds
+            while time_left > 0:
                 self.display.put_text(str(time_left), sub_text)
-                # print(f"time left: {time_left}")
-                # update image :D
-                time.sleep(1)
+                time_left -= 1
+                time.sleep(1.25)
 
-            try:
-                requests.post("http://localhost:8008/event", json={'name': 'photobooth', 'state': f'photo{photo_num}'})
-            except:
-                print('Error sending post request')
+            if self.should_send_event:
+                try:
+                    requests.post("http://localhost:8008/event", json={'name': 'photobooth', 'state': f'photo{photo_num}'})
+                except:
+                    print('Error sending post request')
 
             if photo_num == 3 :
-                if self.piggy:
-                    self.display.put_text("Bacon!", sub_text)
-                else:
-                    self.display.put_text("Die!", sub_text)
+                self.display.put_text(self.mode.funny_cheese_prompt(), sub_text)
             else:
-                self.display.put_text("Cheese!", sub_text)
+                self.display.put_text(self.mode.cheese_prompt(), sub_text)
 
             time.sleep(0.5)
             self.display.clear_text()
@@ -328,8 +319,10 @@ class Photobooth(object):
         return ImageProcessingContext(img, img_data, faces, image_num)
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:
-        if self.piggy:
+        if self.mode == Mode.piggy:
             return [FlyingPigsEffect(), PigNoseEffect(), PigLogoEffect()]
+        elif self.mode == Mode.casey:
+            return [FloatingCaseyEffect(), CaseyLogoEffect()]
 
         all_effects = [
             GhostEffect(),

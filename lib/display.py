@@ -4,36 +4,39 @@ from multiprocessing import Process, Queue
 
 
 def _display_loop(camera_number: int, request_queue: Queue):
-    my_cam = cv2.VideoCapture(camera_number)
-    current_text = None
-    while True:
-        ret_val, img = my_cam.read()
+    try:
+        my_cam = cv2.VideoCapture(camera_number)
+        current_text = None
+        while True:
+            ret_val, img = my_cam.read()
 
-        new_text = None
+            new_text = None
 
-        if not request_queue.empty():
-            req = request_queue.get_nowait()
-            if req:
-                type = req.get("type")
-                if type == "clear":
-                    current_text = None
-                elif type == "set":
-                    current_text = req
+            if not request_queue.empty():
+                req = request_queue.get_nowait()
+                if req:
+                    type = req.get("type")
+                    if type == "clear":
+                        current_text = None
+                    elif type == "set":
+                        current_text = req
 
-        img = cv2.flip(img, 1)
+            img = cv2.flip(img, 1)
 
-        if current_text:
-            _draw_main_text(img, current_text.get("text"))
-            _draw_sub_text(img, current_text.get("subtext"))
+            if current_text:
+                _draw_main_text(img, current_text.get("text"))
+                _draw_sub_text(img, current_text.get("subtext"))
 
-        cv2.imshow("my webcam", img)
+            cv2.imshow("my webcam", img)
 
-        # for some reason this line needs to be here or this doesn't work. I don't know why,
-        # but I do know it won't work otherwise!
-        if cv2.waitKey(1) == 27:
-            break  # esc to quit
+            # for some reason this line needs to be here or this doesn't work. I don't know why,
+            # but I do know it won't work otherwise!
+            if cv2.waitKey(1) == 27:
+                break  # esc to quit
 
-        time.sleep(0.01)
+            time.sleep(0.01)
+    except KeyboardInterrupt:
+        return
 
 
 def _draw_main_text(img, text="Die!"):
