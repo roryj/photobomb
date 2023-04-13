@@ -23,8 +23,8 @@ from lib.effect import (
     PigNoseEffect,
     FlyingPigsEffect,
     PigLogoEffect,
-    FloatingCaseyEffect,
-    CaseyLogoEffect,
+    RandomFullFrameEffect,
+    FinalFrameEffect,
 )
 from lib.mms import send_text
 from lib.s3 import upload_file
@@ -322,7 +322,7 @@ class Photobooth(object):
         if self.mode == Mode.piggy:
             return [FlyingPigsEffect(), PigNoseEffect(), PigLogoEffect()]
         elif self.mode == Mode.casey:
-            return [FloatingCaseyEffect(), CaseyLogoEffect()]
+            return [RandomFullFrameEffect('./resources/casey/'), FinalFrameEffect('./resources/casey/logo/casey_logo.png')]
 
         all_effects = [
             GhostEffect(),

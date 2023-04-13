@@ -151,7 +151,15 @@ class PhotoboothServer:
         if len(self.input_so_far) == 0:
             self.update_display_text(self.start_prompt, self.title)
         else:
-            self.update_display_text(self.input_so_far, self.start_prompt)
+            display_phone_num = self.input_so_far[0:3]
+            if len(self.input_so_far) >= 3:
+                display_phone_num += '-'
+                display_phone_num += self.input_so_far[3:6]
+            if len(self.input_so_far) >= 6:
+                display_phone_num += '-'
+                display_phone_num += self.input_so_far[6:10]
+
+            self.update_display_text(display_phone_num, self.start_prompt)
 
     def collect_phone_number(self):
         with keyboard.Events() as events:
