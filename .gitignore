@@ -8,3 +8,4 @@ result.png
 output
 *.egg-info/
 node_modules/
+twilio.txt
