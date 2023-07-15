@@ -4,7 +4,7 @@ import random
 from abc import abstractmethod
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageColor
 from lib.detection import FaceMetadata
 from typing import List
 
@@ -552,3 +552,72 @@ class FinalFrameEffect(FullFrameEffect):
             return context.img
         else:
             return super().process_image(context)
+
+class PhotoStripFrame:
+    def __init__(self, image_path, x_offset, y_offset, strip_width):
+        self.image = Image.open(image_path)
+        self.x_offset = x_offset
+        self.y_offset = y_offset
+        self.strip_width = strip_width
+
+    def process_image(self, photo_strip: Image.Image) -> Image.Image:
+        strip_image = photo_strip.convert("RGBA")
+        strip_image_size = strip_image.size
+        print(f'Photo strip has size of {strip_image_size}')
+        print(f'Photo frame has size of {self.image.size}')
+
+        # scale the frame
+        scale = strip_image_size[0] / self.strip_width
+        image_size = (int(self.image.size[0] * scale), int(self.image.size[1] * scale))
+        print(f'Photo frame was scaled to size of {image_size}')
+
+        base_image = Image.new("RGBA", image_size, (255, 255, 255, 0))
+        base_image.paste(strip_image, (int(self.x_offset * scale), int(self.y_offset * scale)))
+
+        overlay_image = self.image.convert("RGBA").resize(image_size)
+        final_image = Image.new("RGBA", image_size, (255, 255, 255, 0))
+
+        final_image.paste(overlay_image, (0, 0))
+
+        # # Create mask that has the same setup. Why? Nobody knows. Or has time to test.
+        mask = Image.new("L", image_size, 0)
+        for x in range(0, mask.width):
+            for y in range(0, mask.height):
+                r, g, b, a = final_image.getpixel((x, y))
+                # 'a' is the alpha value of the combinaton of all pig images at point x,y
+                # An alpha of 0 means the pixel is transparent, which we use to create an image
+                # mask only where the ghost pixels are located
+                if a == 0:
+                    continue
+                mask.putpixel((x, y), 255)
+
+        blur_mask = mask.filter(ImageFilter.BLUR)
+
+        return Image.composite(final_image, base_image, blur_mask)
+
+class SideBySideEffect:
+
+    def __init__(self):
+        pass
+
+    def process_image(self, photo_strip: Image.Image) -> Image.Image:
+        strip_image = photo_strip.convert("RGBA")
+        strip_image_size = strip_image.size
+        print(f'Photo strip has size of {strip_image_size}')
+
+        image_size = (strip_image_size[0] * 2 + 4, strip_image_size[1])
+        print(f'Photo frame was scaled to size of {image_size}')
+
+        base_image = Image.new("RGBA", image_size, (255, 255, 255, 0))
+
+        base_image.paste(strip_image, (0, 0))
+        base_image.paste(strip_image, (strip_image.size[0] + 4, 0))
+        base_image = base_image.resize((1134, 1702))
+
+        pink_background = Image.new(mode="RGB", size=(1200, 1800), color=ImageColor.getrgb("#f774c2"))
+        pink_background.paste(base_image, (33, 49))
+
+        draw = ImageDraw.Draw(pink_background)
+        draw.line([(600, 0), (600, 1800)], fill ="white", width = 1)
+
+        return pink_background

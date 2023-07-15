@@ -25,6 +25,8 @@ from lib.effect import (
     PigLogoEffect,
     RandomFullFrameEffect,
     FinalFrameEffect,
+    PhotoStripFrame,
+    SideBySideEffect,
 )
 from lib.mms import send_text
 from lib.s3 import upload_file
@@ -90,6 +92,11 @@ class PhotoPrinter(object):
         output_file_name = f"{prefix}{self.output_file_prefix}_{curr_time}"
         return f"{self.output_dir}/{output_file_name}.{self.image_type}"
 
+    def save_for_printing(self, now, img: Image.Image):
+        path = self.__get_output_file_path(now, prefix="double_")
+        self.save(img, path)
+        return path
+
     def save_unspooked(self, now, img: Image.Image):
         path = self.__get_output_file_path(now, prefix="original_")
         self.save(img, path)
@@ -103,9 +110,12 @@ class PhotoPrinter(object):
         output_file_path = self.__get_output_file_path(now)
         self.save(img, output_file_path)
 
+        final_image = SideBySideEffect().process_image(img)
+        print_path = self.save_for_printing(now, final_image)
         if self.should_print:
             print("Attempting to print the image")
-            result = os.system(f"lpr {output_file_path}")
+            # Available printer sizes should be available in /etc/cups/ppd/<printer-name>.ppd as a *PageSize
+            result = os.system(f'lpr {print_path} -o media="4x6.Fullbleed"')
             if result == 0:
                 print("Printing was successfull")
             else:
@@ -126,6 +136,7 @@ class Photobooth(object):
         photo_delay_seconds: float,
         should_send_event: bool,
         mode: str,
+        should_send_text: bool
     ):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
@@ -139,6 +150,7 @@ class Photobooth(object):
         self.is_running = False
         self.should_send_event = should_send_event
         self.mode = mode
+        self.should_send_text = should_send_text
 
     def run(self, phone_number):
         """
@@ -164,9 +176,9 @@ class Photobooth(object):
         try:
             # 0) Tell the user what we're up to!
             self.display.put_text("The Photo Booth will take 4 photos")
-            time.sleep(4)
+            time.sleep(3)
             self.display.put_text("GET READY!")
-            time.sleep(4)
+            time.sleep(2)
 
             # 1) take the pictures!
             imgs = self.__take_pictures()
@@ -216,6 +228,12 @@ class Photobooth(object):
                 final_image.paste(context.img, (x, y))
                 count += 1
 
+            # 2c) Optionally frame the image with some more effects
+            photo_strip_effect = self.__get_photo_strip_effect()
+            if photo_strip_effect:
+                print(f"Running photo strip effect {photo_strip_effect.__class__.__name__} on {context.filename()}")
+                final_image = photo_strip_effect.process_image(final_image)
+
             # 3) print images!
             print("Printing the resulting image")
             now = datetime.now()
@@ -227,9 +245,10 @@ class Photobooth(object):
             spooked_url = upload_file(spooked_path)
 
             # 5) Send the user a text with download links!
-            mms_content = self.mode.get_mms_content(unspooked_url, spooked_url)
-            preview_image = self.mode.get_mms_preview_image()
-            send_text(phone_number, mms_content, preview_image)
+            if self.should_send_text:
+                mms_content = self.mode.get_mms_content(unspooked_url, spooked_url)
+                preview_image = self.mode.get_mms_preview_image()
+                send_text(phone_number, mms_content, preview_image)
 
             self.display.clear_text()
             self.display.put_text("All done!")
@@ -278,14 +297,12 @@ class Photobooth(object):
                 except:
                     print('Error sending post request')
 
-            if photo_num == 3 :
-                self.display.put_text(self.mode.funny_cheese_prompt(), sub_text)
-            else:
-                self.display.put_text(self.mode.cheese_prompt(), sub_text)
-
+            self.display.put_text(self.mode.get_prompts()[photo_num - 1], sub_text)
+            time.sleep(0.2)
+            img = self.photo_taker.take_photo()
             time.sleep(0.5)
             self.display.clear_text()
-            img = self.photo_taker.take_photo()
+
             imgs.append(img)
             print("photo taken")
             time.sleep(0.5)
@@ -318,11 +335,18 @@ class Photobooth(object):
         faces = find_faces_from_array(img_data)
         return ImageProcessingContext(img, img_data, faces, image_num)
 
+    def __get_photo_strip_effect(self) -> PhotoStripFrame:
+        if self.mode == Mode.barbie:
+            return PhotoStripFrame('./resources/barbie/barbie-frame-sara.png', 10, 247, 580)
+        return None
+
     def __determine_effects_to_run(self) -> List[ImageEffect]:
         if self.mode == Mode.piggy:
             return [FlyingPigsEffect(), PigNoseEffect(), PigLogoEffect()]
         elif self.mode == Mode.casey:
             return [RandomFullFrameEffect('./resources/casey/'), FinalFrameEffect('./resources/casey/logo/casey_logo.png')]
+        elif self.mode == Mode.barbie:
+            return []
 
         all_effects = [
             GhostEffect(),

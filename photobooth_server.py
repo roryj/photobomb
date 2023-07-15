@@ -58,6 +58,12 @@ def main():
         choices=list(Mode),
         help="Which mode to use for the displayed text and effects",
         default=Mode.spooky)
+    parser.add_argument(
+        "--send-text",
+        dest="send_text",
+        action="store_true",
+        help="Whether to collect a phone number and text photos",
+    )
 
     args = parser.parse_args()
     print(f"Starting the photobooth with params: {args}")
@@ -78,22 +84,24 @@ def main():
         int(args.border_size),
         float(args.photo_delay),
         args.send_event,
-        args.mode
+        args.mode,
+        args.send_text
     )
 
-    server = PhotoboothServer(photobooth, display, args.mode.get_title(), args.mode.start_prompt())
+    server = PhotoboothServer(photobooth, display, args.mode.get_title(), args.mode.start_prompt(), args.send_text)
     server.start()
 
 
 class PhotoboothServer:
     same_input_wait = datetime.timedelta(seconds = 0.5)
 
-    def __init__(self, photobooth, display, title, start_prompt):
+    def __init__(self, photobooth, display, title, start_prompt, should_send_text):
         self.photobooth = photobooth
         self.display = display
         self.display_text = None
         self.title = title
         self.start_prompt = start_prompt
+        self.should_send_text = should_send_text
 
     def reset(self):
         self.phone_number = None
@@ -107,8 +115,8 @@ class PhotoboothServer:
         self.reset()
         while True:
             try:
-                self.phone_number = self.collect_phone_number()
-                if not self.phone_number:
+                self.phone_number = self.collect_input(self.should_send_text)
+                if self.phone_number is None:
                     print("We don't have a valid number yet, try again")
                     continue
 
@@ -161,7 +169,7 @@ class PhotoboothServer:
 
             self.update_display_text(display_phone_num, self.start_prompt)
 
-    def collect_phone_number(self):
+    def collect_input(self, need_phone_number):
         with keyboard.Events() as events:
             # Block for 30 seconds
             event = events.get(30.0)
@@ -175,9 +183,9 @@ class PhotoboothServer:
             
             if event.key == keyboard.Key.backspace:
                 self.__on_input_updated('', self.input_so_far[:-1])
-            elif event.key == keyboard.Key.enter and len(self.input_so_far) == 10:
-                return self.input_so_far
-            else:
+            elif event.key == keyboard.Key.enter and (len(self.input_so_far) == 10 or not need_phone_number):
+                return self.input_so_far if need_phone_number else ''
+            elif need_phone_number:
                 self.update_input(input_char)
 
             return None
