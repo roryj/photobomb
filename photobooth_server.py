@@ -104,6 +104,7 @@ class PhotoboothServer:
         self.should_send_text = should_send_text
 
     def reset(self):
+        print('resetting')
         self.phone_number = None
         self.input_so_far = ''
         self.last_input = ''
@@ -128,8 +129,8 @@ class PhotoboothServer:
                 return
 
     def update_display_text(self, main_text, sub_text=''):
-        if self.display_text == main_text and self.sub_text == sub_text:
-            return
+        #if self.display_text == main_text and self.sub_text == sub_text:
+        #    return
         self.display_text = main_text
         self.sub_text = sub_text
         # do the actual update on the display

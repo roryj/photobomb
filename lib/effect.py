@@ -551,7 +551,7 @@ class FinalFrameEffect(FullFrameEffect):
         if self.num_photos != context.image_num:
             return context.img
         else:
-            return super().process_image(contexor {}}
+            return super().process_image(context)
 
 class RandomFrame:
     def __init__(self, image_paths, x_offset, y_offset, strip_width):
