@@ -551,7 +551,16 @@ class FinalFrameEffect(FullFrameEffect):
         if self.num_photos != context.image_num:
             return context.img
         else:
-            return super().process_image(context)
+            return super().process_image(contexor {}}
+
+class RandomFrame:
+    def __init__(self, image_paths, x_offset, y_offset, strip_width):
+        self.frames = [PhotoStripFrame(image, x_offset, y_offset, strip_width) for image in image_paths]
+
+    def process_image(self, photo_strip: Image.Image) -> Image.Image:
+        frame_num = random.randint(0, len(self.frames) - 1)
+        print(f'Picked random frame number {frame_num+1} of {len(self.frames)}')
+        return self.frames[frame_num].process_image(photo_strip)
 
 class PhotoStripFrame:
     def __init__(self, image_path, x_offset, y_offset, strip_width):
@@ -614,7 +623,7 @@ class SideBySideEffect:
         base_image.paste(strip_image, (strip_image.size[0] + 4, 0))
         base_image = base_image.resize((1134, 1702))
 
-        pink_background = Image.new(mode="RGB", size=(1200, 1800), color=ImageColor.getrgb("#f774c2"))
+        pink_background = Image.new(mode="RGB", size=(1200, 1800), color=ImageColor.getrgb("#ffc7d8"))
         pink_background.paste(base_image, (33, 49))
 
         draw = ImageDraw.Draw(pink_background)

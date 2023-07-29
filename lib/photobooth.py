@@ -25,6 +25,7 @@ from lib.effect import (
     PigLogoEffect,
     RandomFullFrameEffect,
     FinalFrameEffect,
+    RandomFrame,
     PhotoStripFrame,
     SideBySideEffect,
 )
@@ -338,6 +339,8 @@ class Photobooth(object):
     def __get_photo_strip_effect(self) -> PhotoStripFrame:
         if self.mode == Mode.barbie:
             return PhotoStripFrame('./resources/barbie/barbie-frame-sara.png', 10, 247, 580)
+        if self.mode == Mode.piggy_3:
+            return RandomFrame(['./resources/pigs/2023/pig-pit-2023-1.png', './resources/pigs/2023/pig-pit-2023-2.png', './resources/pigs/2023/pig-pit-2023-3.png'], 10, 247, 580)
         return None
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:
@@ -346,6 +349,8 @@ class Photobooth(object):
         elif self.mode == Mode.casey:
             return [RandomFullFrameEffect('./resources/casey/'), FinalFrameEffect('./resources/casey/logo/casey_logo.png')]
         elif self.mode == Mode.barbie:
+            return []
+        elif self.mode == Mode.piggy_3:
             return []
 
         all_effects = [
