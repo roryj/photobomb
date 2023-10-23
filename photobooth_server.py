@@ -2,14 +2,14 @@
 
 import argparse
 from dataclasses import dataclass
-import threading
 from typing import Optional
 from pynput import keyboard
-import re
+import json
 import datetime
 
 from lib.display import PhotoboothDisplay
 from lib.photobooth import (
+    PhotoEvent,
     Photobooth,
     PhotoPrinter,
     PhotoTaker,
@@ -49,12 +49,6 @@ def main():
         help="Whether the resulting photo should actually be printed",
     )
     parser.add_argument(
-        "--send-event",
-        dest="send_event",
-        action="store_true",
-        help="Whether the an event should be sent to another server before photo 3. Useful for timely spooks.",
-    )
-    parser.add_argument(
         "--mode",
         type=Mode.from_string,
         choices=list(Mode),
@@ -70,7 +64,7 @@ def main():
     parser.add_argument(
         "--event-config",
         dest="event_json",
-        help='Event to trigger at a specific photobooth moment. Should be a json in the format: {"photo_number": 3, "event_name": "spooky", "spooky_tech_port": 5425}',
+        help='Event to trigger at a specific photobooth moment. Should be a json in the format: {"photo_number": 2, "event_name": "spooky", "spooky_tech_client_port": 5425}',
     )
 
     args = parser.parse_args()
@@ -84,6 +78,8 @@ def main():
     photo_taker: PhotoTaker = WebCamPhotoTaker(webcam_to_use)
     display = PhotoboothDisplay(webcam_to_use)
 
+    photo_event = PhotoEvent(**json.loads(args.event_json)) if args.event_json else None
+
     photobooth = Photobooth(
         display,
         photo_taker,
@@ -91,9 +87,9 @@ def main():
         int(args.num_photos),
         int(args.border_size),
         float(args.photo_delay),
-        args.send_event,
         args.mode,
         args.send_text,
+        photo_event=photo_event,
     )
 
     server = PhotoboothServer(photobooth, display, args.mode.get_title(), args.mode.start_prompt(), args.send_text)

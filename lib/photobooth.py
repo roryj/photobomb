@@ -138,6 +138,7 @@ class PhotoEvent:
         return self.photo_number == current_photo_number
 
     def send_event(self):
+        print(f"Sending event {self.event_name} to spooky tech")
         try:
             requests.post(
                 f"http://localhost:{self.spooky_tech_client_port}/event",
