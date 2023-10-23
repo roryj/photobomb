@@ -1,6 +1,6 @@
 from typing import List
 
-import face_recognition
+# import face_recognition
 import numpy as np
 from PIL import Image
 
@@ -48,7 +48,8 @@ def find_faces_from_image(img: Image.Image) -> [(int, int, int, int)]:
 
 
 def find_faces_from_array(img_data: np.array) -> List[FaceMetadata]:
-    faces = face_recognition.face_locations(img_data)
+    # faces = face_recognition.face_locations(img_data)
+    faces = []
 
     result = []
 
@@ -62,12 +63,10 @@ def find_faces_from_array(img_data: np.array) -> List[FaceMetadata]:
         bottom += 15
         bottom = min(len(img_data), bottom)
 
-        features = face_recognition.face_landmarks(
-            img_data, [(top, right, bottom, left)]
-        )
+        # features = face_recognition.face_landmarks(img_data, [(top, right, bottom, left)])
 
-        if len(features) != 1:
-            raise Exception(f"unexpected number of faces found: {len(features)}")
-        result.append(FaceMetadata((top, right, bottom, left), features[0]))
+        # if len(features) != 1:
+        #     raise Exception(f"unexpected number of faces found: {len(features)}")
+        # result.append(FaceMetadata((top, right, bottom, left), features[0]))
 
     return result

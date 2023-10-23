@@ -174,7 +174,7 @@ class Photobooth(object):
         self.should_send_text = should_send_text
         self.photo_event = photo_event
 
-    def run(self, phone_number):
+    def run(self, phone_number: str):
         """
         run:
             to create a photobooth image, we need to:
