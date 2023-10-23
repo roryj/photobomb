@@ -1,9 +1,10 @@
+from dataclasses import dataclass
 import os
 import random
 import time
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from abc import abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime
 import traceback
 import requests
 
@@ -32,6 +33,7 @@ from lib.effect import (
 from lib.mms import send_text
 from lib.s3 import upload_file
 from lib.mode import Mode
+
 
 class PhotoTaker(object):
     def __init__(self):
@@ -126,6 +128,25 @@ class PhotoPrinter(object):
         return output_file_path
 
 
+@dataclass(frozen=True)
+class PhotoEvent:
+    photo_number: int
+    event_name: str
+    spooky_tech_client_port: int
+
+    def should_send_event(self, current_photo_number: int) -> bool:
+        return self.photo_number == current_photo_number
+
+    def send_event(self):
+        try:
+            requests.post(
+                f"http://localhost:{self.spooky_tech_client_port}/event",
+                json={"sensorId": self.event_name, "sensorType": "manual", "data": True},
+            )
+        except Exception as e:
+            print(f"Error sending post request: {e}")
+
+
 class Photobooth(object):
     def __init__(
         self,
@@ -135,9 +156,9 @@ class Photobooth(object):
         num_photos: int,
         image_border_size: int,
         photo_delay_seconds: float,
-        should_send_event: bool,
         mode: str,
-        should_send_text: bool
+        should_send_text: bool,
+        photo_event: Optional[PhotoEvent] = None,
     ):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
@@ -149,9 +170,9 @@ class Photobooth(object):
         self.image_border_size = image_border_size
         self.photo_delay_seconds = int(photo_delay_seconds)
         self.is_running = False
-        self.should_send_event = should_send_event
         self.mode = mode
         self.should_send_text = should_send_text
+        self.photo_event = photo_event
 
     def run(self, phone_number):
         """
@@ -259,7 +280,7 @@ class Photobooth(object):
             print(f"An exception occurred running the photobooth: {e}")
             traceback.print_exc()
             self.is_running = False
-            return ('','')
+            return ("", "")
 
         self.is_running = False
 
@@ -281,7 +302,6 @@ class Photobooth(object):
             # loop from number of seconds down to 0 sleeping in between
             # display the number going down
             # at 0, take picture, maybe do a flash thing on the pic
-            start_time = datetime.now()
             photo_num = i + 1
             sub_text = f"photo {photo_num}/{self.num_photos}"
             print(f"taking {sub_text} in {self.photo_delay_seconds} seconds")
@@ -292,11 +312,8 @@ class Photobooth(object):
                 time_left -= 1
                 time.sleep(1.25)
 
-            if self.should_send_event:
-                try:
-                    requests.post("http://localhost:8008/event", json={'name': 'photobooth', 'state': f'photo{photo_num}'})
-                except:
-                    print('Error sending post request')
+            if self.photo_event and self.photo_event.should_send_event(photo_num):
+                self.photo_event.send_event()
 
             self.display.put_text(self.mode.get_prompts()[photo_num - 1], sub_text)
             time.sleep(0.2)
@@ -311,18 +328,14 @@ class Photobooth(object):
         print("all photos taken!")
         return imgs
 
-    def __setup_images_for_processing(
-        self, imgs: List[Image.Image]
-    ) -> Tuple[int, int, List[ImageProcessingContext]]:
+    def __setup_images_for_processing(self, imgs: List[Image.Image]) -> Tuple[int, int, List[ImageProcessingContext]]:
         prev_img = None
 
         contexts = []
         image_num = 1
         for img in imgs:
             if prev_img is not None and img.size != prev_img.size:
-                raise ValueError(
-                    f"the image {img.filename} is not the same size as {prev_img.filename}"
-                )
+                raise ValueError(f"the image {img.filename} is not the same size as {prev_img.filename}")
 
             contexts.append(self.__create_context_from_image(img, image_num))
             image_num += 1
@@ -338,16 +351,28 @@ class Photobooth(object):
 
     def __get_photo_strip_effect(self) -> PhotoStripFrame:
         if self.mode == Mode.barbie:
-            return PhotoStripFrame('./resources/barbie/barbie-frame-sara.png', 10, 247, 580)
+            return PhotoStripFrame("./resources/barbie/barbie-frame-sara.png", 10, 247, 580)
         if self.mode == Mode.piggy_3:
-            return RandomFrame(['./resources/pigs/2023/pig-pit-2023-1.png', './resources/pigs/2023/pig-pit-2023-2.png', './resources/pigs/2023/pig-pit-2023-3.png'], 10, 247, 580)
+            return RandomFrame(
+                [
+                    "./resources/pigs/2023/pig-pit-2023-1.png",
+                    "./resources/pigs/2023/pig-pit-2023-2.png",
+                    "./resources/pigs/2023/pig-pit-2023-3.png",
+                ],
+                10,
+                247,
+                580,
+            )
         return None
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:
         if self.mode == Mode.piggy:
             return [FlyingPigsEffect(), PigNoseEffect(), PigLogoEffect()]
         elif self.mode == Mode.casey:
-            return [RandomFullFrameEffect('./resources/casey/'), FinalFrameEffect('./resources/casey/logo/casey_logo.png')]
+            return [
+                RandomFullFrameEffect("./resources/casey/"),
+                FinalFrameEffect("./resources/casey/logo/casey_logo.png"),
+            ]
         elif self.mode == Mode.barbie:
             return []
         elif self.mode == Mode.piggy_3:
@@ -362,10 +387,7 @@ class Photobooth(object):
 
         selected_effects = []
 
-        while (
-            len(selected_effects) < 4
-            and random.randint(0, 100) < chance_for_next_effect
-        ):
+        while len(selected_effects) < 4 and random.randint(0, 100) < chance_for_next_effect:
             index = random.randint(0, len(all_effects) - 1)
             selected = all_effects[index]
             print(f"selected effect {selected.__class__.__name__}")
