@@ -311,10 +311,10 @@ class Photobooth(object):
             while time_left > 0:
                 self.display.put_text(str(time_left), sub_text)
                 time_left -= 1
+                if time_left == 0:
+                    if self.photo_event and self.photo_event.should_send_event(photo_num):
+                        self.photo_event.send_event()
                 time.sleep(1.25)
-
-            if self.photo_event and self.photo_event.should_send_event(photo_num):
-                self.photo_event.send_event()
 
             self.display.put_text(self.mode.get_prompts()[photo_num - 1], sub_text)
             time.sleep(0.2)
