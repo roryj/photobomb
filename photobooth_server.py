@@ -158,7 +158,7 @@ class PhotoboothServer:
         # Handle duplicate input from long-ish key press
         current_time = datetime.datetime.now()
         if len(self.input_so_far) >= 10:
-            print(f"SKIP INPUT: TOO LONG!")
+            print("SKIP INPUT: TOO LONG!")
             return
         elif self.last_input == new_input and self.last_input_time + PhotoboothServer.same_input_wait > current_time:
             print(f"SKIP INPUT {new_input}")

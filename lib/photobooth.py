@@ -131,11 +131,12 @@ class PhotoPrinter(object):
 @dataclass(frozen=True)
 class PhotoEvent:
     photo_number: int
+    second_to_send_it: int
     event_name: str
     spooky_tech_client_port: int
 
-    def should_send_event(self, current_photo_number: int) -> bool:
-        return self.photo_number == current_photo_number
+    def should_send_event(self, current_photo_number: int, second_to_send_it: int) -> bool:
+        return self.photo_number == current_photo_number and self.second_to_send_it == second_to_send_it
 
     def send_event(self):
         print(f"Sending event {self.event_name} to spooky tech")
@@ -311,9 +312,10 @@ class Photobooth(object):
             while time_left > 0:
                 self.display.put_text(str(time_left), sub_text)
                 time_left -= 1
-                if time_left == 0:
-                    if self.photo_event and self.photo_event.should_send_event(photo_num):
-                        self.photo_event.send_event()
+                if self.photo_event and self.photo_event.should_send_event(
+                    current_photo_number=photo_num, second_to_send_it=time_left
+                ):
+                    self.photo_event.send_event()
                 time.sleep(1.25)
 
             self.display.put_text(self.mode.get_prompts()[photo_num - 1], sub_text)
