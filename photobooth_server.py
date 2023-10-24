@@ -64,7 +64,7 @@ def main():
     parser.add_argument(
         "--event-config",
         dest="event_json",
-        help='Event to trigger at a specific photobooth moment. Should be a json in the format: {"photo_number": 2, "event_name": "spooky", "spooky_tech_client_port": 5425}',
+        help='Event to trigger at a specific photobooth moment. Should be a json in the format: {"photo_number": 2, "second_to_send_it": 2, "event_name": "spooky", "spooky_tech_client_port": 5425}',
     )
 
     args = parser.parse_args()
