@@ -121,7 +121,7 @@ class PhotoboothServer:
         self.reset()
         while True:
             try:
-                self.update_display_text("Press ENTER to get SPOOKED!", "🦴in your bones🦴")
+                self.update_display_text("Press ENTER to get SPOOKED!", "you ready?")
                 _ = input("Press ENTER to start the photobooth...")
                 print("Running photobooth")
                 (original_photos, spooked_photos) = self.photobooth.run()
