@@ -1,6 +1,6 @@
 from enum import Enum
 
-SPOOKY="""
+SPOOKY = """
   .-')     _ (`-.                           .-. .-')                     .-. .-')                             .-') _    ('-. .-.
  ( OO ).  ( (OO  )                          \  ( OO )                    \  ( OO )                           (  OO) )  ( OO )  /
 (_)---\_)_.`     \ .-'),-----.  .-'),-----. ,--. ,--.   ,--.   ,--.       ;-----.\  .-'),-----.  .-'),-----. /     '._ ,--. ,--.
@@ -12,7 +12,7 @@ SPOOKY="""
  `-----' `--'          `-----'      `-----' `--' '--'    `--'             `------'      `-----'      `-----'    `--'   `--' `--'
 """
 
-PIGGY="""
+PIGGY = """
  ____ ____   ____   ____  __ __  ____    ___    ___   ______  __ __ 
 |    \    | /    | /    ||  |  ||    \  /   \  /   \ |      ||  |  |
 |  o  )  | |   __||   __||  |  ||  o  )|     ||     ||      ||  |  |
@@ -23,7 +23,7 @@ PIGGY="""
                                                                     
 """
 
-CASEY="""
+CASEY = """
                                                                 ___                         ___       ___       
                                                                (   )                       (   )     (   )      
   .--.      .---.      .--.      .--.    ___  ___               | |.-.     .--.     .--.    | |_      | | .-.   
@@ -39,7 +39,7 @@ CASEY="""
                                            .__.'                                                                
 """
 
-BARBIE="""
+BARBIE = """
  ______                  __         _          ______                    _   __       
 |_   _ \                [  |       (_)        |_   _ \                  / |_[  |      
   | |_) |  ,--.   _ .--. | |.--.   __  .---.    | |_) |   .--.    .--. `| |-'| |--.   
@@ -49,7 +49,7 @@ BARBIE="""
                                                                                       
 """
 
-PIGGY_3="""
+PIGGY_3 = """
 ██████████████████████▓▓▓▓██████████▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒▓▓▓▓▒▒░░░░░░░░▒▒▒▒▒▒░░░░░░▒▒░░░░░░
 ████████████▓▓██████▓▓░░░░░░░░░░▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒░░░░▒▒░░░░░░
 ████████████▓▓██████▓▓░░░░░░░░░░░░░░░░░░▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒▒░░░░▒▒░░▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒░░░░  
@@ -99,8 +99,8 @@ PIGGY_3="""
 
 class Mode(Enum):
     spooky = 0
-    piggy  = 1
-    casey  = 2
+    piggy = 1
+    casey = 2
     barbie = 3
     piggy_3 = 4
 
@@ -134,9 +134,9 @@ class Mode(Enum):
 
     def start_prompt(self):
         return [
-            "ENTER your phone number to get SPOOKED!",
-            "ENTER your phone number PIGGIES!",
-            "Enter your phone number party people!",
+            "Press ENTER to get started!",
+            "Press ENTER to get started!",
+            "Press ENTER to get started!",
             "Press ENTER to get started!",
             "Press ENTER to get started!",
         ][self.value]
@@ -159,7 +159,6 @@ class Mode(Enum):
             "Assembling your photos...",
         ][self.value]
 
-    
     def get_mms_content(self, unspooked_url, spooked_url):
         return [
             f"Your Halloween Photobooth photos are ready! Download now!\n\nSpooked: {spooked_url}\n\nOriginal: {unspooked_url}",

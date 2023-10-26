@@ -158,8 +158,7 @@ class Photobooth(object):
         num_photos: int,
         image_border_size: int,
         photo_delay_seconds: float,
-        mode: str,
-        should_send_text: bool,
+        mode: Mode,
         photo_event: Optional[PhotoEvent] = None,
     ):
         if num_photos <= 0:
@@ -173,10 +172,9 @@ class Photobooth(object):
         self.photo_delay_seconds = int(photo_delay_seconds)
         self.is_running = False
         self.mode = mode
-        self.should_send_text = should_send_text
         self.photo_event = photo_event
 
-    def run(self, phone_number: str):
+    def run(self):
         """
         run:
             to create a photobooth image, we need to:
@@ -218,17 +216,11 @@ class Photobooth(object):
 
             # setup the final image
             result_width = image_width + (2 * self.image_border_size)
-            result_height = (image_height * self.num_photos) + (
-                (self.num_photos + 1) * self.image_border_size
-            )
+            result_height = (image_height * self.num_photos) + ((self.num_photos + 1) * self.image_border_size)
             print(f"final image size: {result_width}x{result_height}")
 
-            unspooked_image = Image.new(
-                "RGBA", (result_width, result_height), (255, 255, 255, 255)
-            )
-            final_image = Image.new(
-                "RGBA", (result_width, result_height), (255, 255, 255, 255)
-            )
+            unspooked_image = Image.new("RGBA", (result_width, result_height), (255, 255, 255, 255))
+            final_image = Image.new("RGBA", (result_width, result_height), (255, 255, 255, 255))
 
             # 2b) for each image:
             #   - determine which spooky effects to run
@@ -263,16 +255,6 @@ class Photobooth(object):
             now = datetime.now()
             unspooked_path = self.printer.save_unspooked(now, unspooked_image)
             spooked_path = self.printer.save_and_print(now, final_image)
-
-            # 4) Upload images!
-            unspooked_url = upload_file(unspooked_path)
-            spooked_url = upload_file(spooked_path)
-
-            # 5) Send the user a text with download links!
-            if self.should_send_text:
-                mms_content = self.mode.get_mms_content(unspooked_url, spooked_url)
-                preview_image = self.mode.get_mms_preview_image()
-                send_text(phone_number, mms_content, preview_image)
 
             self.display.clear_text()
             self.display.put_text("All done!")
@@ -353,7 +335,7 @@ class Photobooth(object):
         faces = find_faces_from_array(img_data)
         return ImageProcessingContext(img, img_data, faces, image_num)
 
-    def __get_photo_strip_effect(self) -> PhotoStripFrame:
+    def __get_photo_strip_effect(self) -> Optional[PhotoStripFrame]:
         if self.mode == Mode.barbie:
             return PhotoStripFrame("./resources/barbie/barbie-frame-sara.png", 10, 247, 580)
         if self.mode == Mode.piggy_3:
