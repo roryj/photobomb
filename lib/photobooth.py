@@ -349,6 +349,12 @@ class Photobooth(object):
                 247,
                 580,
             )
+        if self.mode == Mode.spooky:
+            return RandomFrame(
+                [
+                    "./resources/halloween/halloween-2023.png",
+                ],
+                10, 247, 580,)
         return None
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:

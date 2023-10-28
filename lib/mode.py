@@ -134,7 +134,7 @@ class Mode(Enum):
 
     def start_prompt(self):
         return [
-            "Press ENTER to get started!",
+            "Press ENTER to get spooked!",
             "Press ENTER to get started!",
             "Press ENTER to get started!",
             "Press ENTER to get started!",
