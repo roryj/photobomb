@@ -341,9 +341,7 @@ class Photobooth(object):
         if self.mode == Mode.piggy_3:
             return RandomFrame(
                 [
-                    "./resources/pigs/2023/pig-pit-2023-1.png",
-                    "./resources/pigs/2023/pig-pit-2023-2.png",
-                    "./resources/pigs/2023/pig-pit-2023-3.png",
+                    "./resources/pigs/2024/pig-pit-2024.png",
                 ],
                 10,
                 247,

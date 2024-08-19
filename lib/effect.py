@@ -623,8 +623,9 @@ class SideBySideEffect:
         base_image.paste(strip_image, (strip_image.size[0] + 4, 0))
         base_image = base_image.resize((1134, 1702))
 
-        # Actually bluey-purple. Need to refactor this to be based on mode :/
-        pink_background = Image.new(mode="RGB", size=(1200, 1800), color=ImageColor.getrgb("#290069"))
+        # Actually bluey-purple. Need to refactor this to be based on mode :/sys
+        # Border color
+        pink_background = Image.new(mode="RGB", size=(1200, 1800), color=ImageColor.getrgb("#ffc7d8"))
         pink_background.paste(base_image, (33, 49))
 
         draw = ImageDraw.Draw(pink_background)
