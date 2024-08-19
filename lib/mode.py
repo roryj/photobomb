@@ -159,20 +159,11 @@ class Mode(Enum):
             "Assembling your photos...",
         ][self.value]
 
-    def get_mms_content(self, unspooked_url, spooked_url):
+    def get_background_color(self):
         return [
-            f"Your Halloween Photobooth photos are ready! Download now!\n\nSpooked: {spooked_url}\n\nOriginal: {unspooked_url}",
-            f"Your Piggy Booth photos are ready! Download now!\n\nPiggies: {spooked_url}\n\nOriginal: {unspooked_url}",
-            f"Your Photo Booth photos are ready! Download now!\n\nCaseyfied: {spooked_url}\n\nOriginal: {unspooked_url}\n\nHappy 30th Casey!",
-            f"Your Photo Booth photos are ready! Download now!\n\nBarbified: {spooked_url}\n\nOriginal: {unspooked_url}\n\nHappy Birthday Sara!",
-            f"Your Piggy Booth photos are ready! Download now!\n\nPiggies: {spooked_url}\n\nOriginal: {unspooked_url}",
-        ][self.value]
-
-    def get_mms_preview_image(self):
-        return [
-            "https://is4-ssl.mzstatic.com/image/thumb/Purple128/v4/72/d9/21/72d92136-dd8b-42c0-8d87-c242fa6468c7/source/256x256bb.jpg",
-            "https://pbs.twimg.com/profile_images/668934629680791552/b7WMPIlK_400x400.jpg",
-            "https://jmattfong-halloween-public.s3.us-west-2.amazonaws.com/casey_256.jpg",
-            "https://ih1.redbubble.net/image.3764780822.3959/flat,128x,075,f-pad,128x128,f8f8f8.jpg",
-            "https://pbs.twimg.com/profile_images/668934629680791552/b7WMPIlK_400x400.jpg",
+            "#290069", # bluey-purple
+            "#ffc7d8", # light pink
+            "#000000", # black
+            "#f774c2", # Barbie pink
+            "#ffc7d8", # light pink
         ][self.value]

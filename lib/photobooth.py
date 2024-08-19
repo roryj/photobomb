@@ -83,11 +83,13 @@ class PhotoPrinter(object):
         output_file_prefix: str,
         image_type: str,
         should_print: bool,
+        mode: Mode,
     ):
         self.output_dir = output_dir
         self.output_file_prefix = output_file_prefix
         self.image_type = image_type
         self.should_print = should_print
+        self.mode = mode
         super().__init__()
 
     def __get_output_file_path(self, now, prefix="") -> str:
@@ -113,7 +115,7 @@ class PhotoPrinter(object):
         output_file_path = self.__get_output_file_path(now)
         self.save(img, output_file_path)
 
-        final_image = SideBySideEffect().process_image(img)
+        final_image = SideBySideEffect().process_image(img, self.mode)
         print_path = self.save_for_printing(now, final_image)
         if self.should_print:
             print("Attempting to print the image")
@@ -159,7 +161,8 @@ class Photobooth(object):
         image_border_size: int,
         photo_delay_seconds: float,
         mode: Mode,
-        photo_event: Optional[PhotoEvent] = None,
+        photo_event: Optional[PhotoEvent],
+        test: bool,
     ):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
@@ -173,6 +176,7 @@ class Photobooth(object):
         self.is_running = False
         self.mode = mode
         self.photo_event = photo_event
+        self.test = test
 
     def run(self):
         """
@@ -198,9 +202,9 @@ class Photobooth(object):
         try:
             # 0) Tell the user what we're up to!
             self.display.put_text("The Photo Booth will take 4 photos")
-            time.sleep(3)
+            time.sleep(0 if self.test else 3)
             self.display.put_text("GET READY!")
-            time.sleep(2)
+            time.sleep(0 if self.test else 2)
 
             # 1) take the pictures!
             imgs = self.__take_pictures()
@@ -237,7 +241,7 @@ class Photobooth(object):
 
                 for effect in effects:
                     print(f"Running effect {effect.__class__.__name__} on {context.filename()}")
-                    context.img = effect.process_image(context)
+                    context.img = effect.process_image(context, self.mode)
 
                 print(f"putting image of size {context.img.size} into: {x},{y}")
 
@@ -248,7 +252,7 @@ class Photobooth(object):
             photo_strip_effect = self.__get_photo_strip_effect()
             if photo_strip_effect:
                 print(f"Running photo strip effect {photo_strip_effect.__class__.__name__} on {context.filename()}")
-                final_image = photo_strip_effect.process_image(final_image)
+                final_image = photo_strip_effect.process_image(final_image, self.mode)
 
             # 3) print images!
             print("Printing the resulting image")
@@ -258,7 +262,7 @@ class Photobooth(object):
 
             self.display.clear_text()
             self.display.put_text("All done!")
-            time.sleep(3.5)
+            time.sleep(0 if self.test else 3.5)
 
         except Exception as e:
             print(f"An exception occurred running the photobooth: {e}")
@@ -299,7 +303,7 @@ class Photobooth(object):
                 ):
                     self.photo_event.send_event()
                     time.sleep(0.2)
-                time.sleep(1.25)
+                time.sleep(0.5 if self.test else 1.25)
 
             self.display.put_text(self.mode.get_prompts()[photo_num - 1], sub_text)
             time.sleep(0.2)

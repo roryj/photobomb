@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageColor
 from lib.detection import FaceMetadata
 from typing import List
+from lib.mode import Mode
 
 class IllegalStateException(Exception):
     pass
@@ -23,7 +24,6 @@ class ImageProcessingContext(object):
     def filename(self):
         if hasattr(self.img, "filename"):
             return self.img.filename
-
         return "Unknown"
 
 
@@ -32,7 +32,7 @@ class ImageEffect(object):
         super().__init__()
 
     @abstractmethod
-    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+    def process_image(self, context: ImageProcessingContext, mode: Mode) -> Image.Image:
         raise NotImplementedError
 
 
@@ -56,7 +56,7 @@ class GhostEffect(ImageEffect):
 
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
         """
         for this, we need to:
             1. Create an all blank image the size of the passed in image
@@ -157,7 +157,7 @@ class FaceIdentifyEffect(ImageEffect):
     def __init__(self):
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+    def process_image(self, context: ImageProcessingContext, mode: Mode) -> Image.Image:
         img = context.img
         draw = ImageDraw.Draw(img)
 
@@ -182,7 +182,7 @@ class SaturationEffect(ImageEffect):
         self.__saturation_percentage = saturation_percentage
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+    def process_image(self, context: ImageProcessingContext, mode: Mode) -> Image.Image:
         enhancer = ImageEnhance.Contrast(context.img)
         return enhancer.enhance(self.__saturation_percentage)
 
@@ -192,7 +192,7 @@ class SwirlFaceEffect(ImageEffect):
         self.__swirl_strength = swirl_strength
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext) -> Image.Image:
+    def process_image(self, context: ImageProcessingContext, mode: Mode) -> Image.Image:
         img = context.img
 
         for face in context.faces:
@@ -289,7 +289,7 @@ class SketchyEyeEffect(ImageEffect):
     def __init__(self):
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
 
         img = context.img
         draw = ImageDraw.Draw(img)
@@ -332,7 +332,7 @@ class PigNoseEffect(ImageEffect):
         self.__pig_nose_width_ratio = img.width / img.height
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
         img = context.img.convert("RGBA")
         draw = ImageDraw.Draw(img)
 
@@ -379,7 +379,7 @@ class PigLogoEffect(ImageEffect):
         self.num_photos = num_photos
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
         if self.num_photos != context.image_num:
             print(f'Skipping PigLogoEffect for image number {context.image_num}')
             return context.img
@@ -422,7 +422,7 @@ class FlyingPigsEffect(ImageEffect):
         self.pig_width_ratio = self.pig_image.width / self.pig_image.height
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
         insert_left = bool(random.getrandbits(1))
         insert_right = bool(random.getrandbits(1))
         reverse_pigs = bool(random.getrandbits(1))
@@ -506,7 +506,7 @@ class FullFrameEffect(ImageEffect):
         self.image = Image.open(image_path) if image_path else None
         super().__init__()
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
         base_image = context.img.convert("RGBA")
         image_size = base_image.size
 
@@ -538,29 +538,29 @@ class RandomFullFrameEffect(FullFrameEffect):
         random.shuffle(self.images)
         super().__init__(None)
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
         self.image = self.images.pop(0)
-        return super().process_image(context)
+        return super().process_image(context, mode)
 
 class FinalFrameEffect(FullFrameEffect):
     def __init__(self, image_path="./resources/pigs/hog-hole-22.png", num_photos=4):
         self.num_photos = num_photos
         super().__init__(image_path)
 
-    def process_image(self, context: ImageProcessingContext):
+    def process_image(self, context: ImageProcessingContext, mode: Mode):
         if self.num_photos != context.image_num:
             return context.img
         else:
-            return super().process_image(context)
+            return super().process_image(context, mode)
 
 class RandomFrame:
     def __init__(self, image_paths, x_offset, y_offset, strip_width):
         self.frames = [PhotoStripFrame(image, x_offset, y_offset, strip_width) for image in image_paths]
 
-    def process_image(self, photo_strip: Image.Image) -> Image.Image:
+    def process_image(self, photo_strip: Image.Image, mode: Mode) -> Image.Image:
         frame_num = random.randint(0, len(self.frames) - 1)
         print(f'Picked random frame number {frame_num+1} of {len(self.frames)}')
-        return self.frames[frame_num].process_image(photo_strip)
+        return self.frames[frame_num].process_image(photo_strip, mode)
 
 class PhotoStripFrame:
     def __init__(self, image_path, x_offset, y_offset, strip_width):
@@ -569,7 +569,7 @@ class PhotoStripFrame:
         self.y_offset = y_offset
         self.strip_width = strip_width
 
-    def process_image(self, photo_strip: Image.Image) -> Image.Image:
+    def process_image(self, photo_strip: Image.Image, mode: Mode) -> Image.Image:
         strip_image = photo_strip.convert("RGBA")
         strip_image_size = strip_image.size
         print(f'Photo strip has size of {strip_image_size}')
@@ -609,7 +609,7 @@ class SideBySideEffect:
     def __init__(self):
         pass
 
-    def process_image(self, photo_strip: Image.Image) -> Image.Image:
+    def process_image(self, photo_strip: Image.Image, mode: Mode) -> Image.Image:
         strip_image = photo_strip.convert("RGBA")
         strip_image_size = strip_image.size
         print(f'Photo strip has size of {strip_image_size}')
@@ -623,12 +623,11 @@ class SideBySideEffect:
         base_image.paste(strip_image, (strip_image.size[0] + 4, 0))
         base_image = base_image.resize((1134, 1702))
 
-        # Actually bluey-purple. Need to refactor this to be based on mode :/sys
         # Border color
-        pink_background = Image.new(mode="RGB", size=(1200, 1800), color=ImageColor.getrgb("#ffc7d8"))
-        pink_background.paste(base_image, (33, 49))
+        colored_background = Image.new(mode="RGB", size=(1200, 1800), color=ImageColor.getrgb(mode.get_background_color()))
+        colored_background.paste(base_image, (33, 49))
 
-        draw = ImageDraw.Draw(pink_background)
+        draw = ImageDraw.Draw(colored_background)
         draw.line([(600, 0), (600, 1800)], fill ="white", width = 1)
 
-        return pink_background
+        return colored_background

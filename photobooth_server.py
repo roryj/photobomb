@@ -29,7 +29,7 @@ def main():
     )
     parser.add_argument(
         "--border-size",
-        default=5,
+        default=20,
         help="The size of the border to put around all images",
     )
     parser.add_argument(
@@ -60,12 +60,17 @@ def main():
         dest="event_json",
         help='Event to trigger at a specific photobooth moment. Should be a json in the format: {"photo_number": 2, "second_to_send_it": 2, "event_name": "spooky", "spooky_tech_client_port": 5425}',
     )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Enable test mode, which shortens the time between photos"
+    )
 
     args = parser.parse_args()
     print(f"Starting the photobooth with params: {args}")
     print(args.mode.ascii_art())
 
-    printer = PhotoPrinter("./output", "photobooth", "png", args.should_print)
+    printer = PhotoPrinter("./output", "photobooth", "png", args.should_print, args.mode)
 
     webcam_to_use = int(args.use_webcam)
 
@@ -82,7 +87,8 @@ def main():
         int(args.border_size),
         float(args.photo_delay),
         args.mode,
-        photo_event=photo_event,
+        photo_event,
+        args.test,
     )
 
     server = PhotoboothServer(photobooth, display, args.mode.get_title(), args.mode.start_prompt())
