@@ -159,6 +159,11 @@ class Mode(Enum):
             "Assembling your photos...",
         ][self.value]
 
+    def get_bottom_panel(self):
+        return [
+            "resources/halloween/halloween-2024.png",
+        ][self.value]
+
     def get_background_color(self):
         return [
             "#290069", # bluey-purple

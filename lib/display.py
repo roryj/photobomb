@@ -1,7 +1,7 @@
 import time
 import cv2
 from multiprocessing import Process, Queue
-
+from lib.assembly import PHOTO_WIDTH, PHOTO_HEIGHT
 
 def _display_loop(camera_number: int, request_queue: Queue):
     try:
@@ -22,6 +22,10 @@ def _display_loop(camera_number: int, request_queue: Queue):
                         current_text = req
 
             img = cv2.flip(img, 1)
+
+            height, width, _ = img.shape
+            cv2.rectangle(img, (0, 0), (int(width * 0.075), height), (0, 0, 0), thickness=cv2.FILLED)
+            cv2.rectangle(img, (width - int(width * 0.075), 0), (width, height), (0, 0, 0), thickness=cv2.FILLED)
 
             if current_text:
                 _draw_main_text(img, current_text.get("text"))

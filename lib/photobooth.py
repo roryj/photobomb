@@ -33,7 +33,8 @@ from lib.effect import (
 from lib.mms import send_text
 from lib.s3 import upload_file
 from lib.mode import Mode
-
+from lib.assembly import DoublePhotoStrip, PhotoTakingContext
+from lib.printer import PhotoPrinter
 
 class PhotoTaker(object):
     def __init__(self):
@@ -76,60 +77,6 @@ class RandomStaticPhoto(PhotoTaker):
         return Image.open(self.file_paths[index])
 
 
-class PhotoPrinter(object):
-    def __init__(
-        self,
-        output_dir: str,
-        output_file_prefix: str,
-        image_type: str,
-        should_print: bool,
-        mode: Mode,
-    ):
-        self.output_dir = output_dir
-        self.output_file_prefix = output_file_prefix
-        self.image_type = image_type
-        self.should_print = should_print
-        self.mode = mode
-        super().__init__()
-
-    def __get_output_file_path(self, now, prefix="") -> str:
-        curr_time = now.strftime("%d_%m_%Y-%H_%M_%S")
-        output_file_name = f"{prefix}{self.output_file_prefix}_{curr_time}"
-        return f"{self.output_dir}/{output_file_name}.{self.image_type}"
-
-    def save_for_printing(self, now, img: Image.Image):
-        path = self.__get_output_file_path(now, prefix="double_")
-        self.save(img, path)
-        return path
-
-    def save_unspooked(self, now, img: Image.Image):
-        path = self.__get_output_file_path(now, prefix="original_")
-        self.save(img, path)
-        return path
-
-    def save(self, img: Image.Image, output_file_path):
-        print(f"Saving the image to {output_file_path}")
-        img.save(output_file_path, self.image_type.upper(), quality=95)
-
-    def save_and_print(self, now, img: Image.Image):
-        output_file_path = self.__get_output_file_path(now)
-        self.save(img, output_file_path)
-
-        final_image = SideBySideEffect().process_image(img, self.mode)
-        print_path = self.save_for_printing(now, final_image)
-        if self.should_print:
-            print("Attempting to print the image")
-            # Available printer sizes should be available in /etc/cups/ppd/<printer-name>.ppd as a *PageSize
-            result = os.system(f'lpr {print_path} -o media="4x6.Fullbleed"')
-            if result == 0:
-                print("Printing was successfull")
-            else:
-                print("Printing failed :(")
-        else:
-            print("Not printing!")
-        return output_file_path
-
-
 @dataclass(frozen=True)
 class PhotoEvent:
     photo_number: int
@@ -160,9 +107,8 @@ class Photobooth(object):
         num_photos: int,
         image_border_size: int,
         photo_delay_seconds: float,
-        mode: Mode,
+        context: PhotoTakingContext,
         photo_event: Optional[PhotoEvent],
-        test: bool,
     ):
         if num_photos <= 0:
             raise ValueError("there must be at least one picture to be taken")
@@ -174,9 +120,10 @@ class Photobooth(object):
         self.image_border_size = image_border_size
         self.photo_delay_seconds = int(photo_delay_seconds)
         self.is_running = False
-        self.mode = mode
+        self.mode = context.mode
         self.photo_event = photo_event
-        self.test = test
+        self.test = context.test
+        self.context = context
 
     def run(self):
         """
@@ -208,6 +155,7 @@ class Photobooth(object):
 
             # 1) take the pictures!
             imgs = self.__take_pictures()
+            self.context.set_images(imgs)
 
             # 2) process images
             self.display.put_text(self.mode.processing_images_prompt())
@@ -249,16 +197,14 @@ class Photobooth(object):
                 count += 1
 
             # 2c) Optionally frame the image with some more effects
-            photo_strip_effect = self.__get_photo_strip_effect()
-            if photo_strip_effect:
-                print(f"Running photo strip effect {photo_strip_effect.__class__.__name__} on {context.filename()}")
-                final_image = photo_strip_effect.process_image(final_image, self.mode)
+            print(f"Creating photo strip")
+            photo_strip = DoublePhotoStrip().process_image(self.context, self.printer)
 
             # 3) print images!
             print("Printing the resulting image")
             now = datetime.now()
             unspooked_path = self.printer.save_unspooked(now, unspooked_image)
-            spooked_path = self.printer.save_and_print(now, final_image)
+            spooked_path = self.printer.save_and_print(now, photo_strip)
 
             self.display.clear_text()
             self.display.put_text("All done!")
@@ -338,26 +284,6 @@ class Photobooth(object):
         img_data = np.array(img)
         faces = find_faces_from_array(img_data)
         return ImageProcessingContext(img, img_data, faces, image_num)
-
-    def __get_photo_strip_effect(self) -> Optional[PhotoStripFrame]:
-        if self.mode == Mode.barbie:
-            return PhotoStripFrame("./resources/barbie/barbie-frame-sara.png", 10, 247, 580)
-        if self.mode == Mode.piggy_3:
-            return RandomFrame(
-                [
-                    "./resources/pigs/2024/pig-pit-2024.png",
-                ],
-                10,
-                247,
-                580,
-            )
-        if self.mode == Mode.spooky:
-            return RandomFrame(
-                [
-                    "./resources/halloween/halloween-2023.png",
-                ],
-                10, 247, 580,)
-        return None
 
     def __determine_effects_to_run(self) -> List[ImageEffect]:
         if self.mode == Mode.piggy:

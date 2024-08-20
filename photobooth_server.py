@@ -16,7 +16,7 @@ from lib.photobooth import (
     WebCamPhotoTaker,
 )
 from lib.mode import Mode
-
+from lib.assembly import print_photo_info, PhotoTakingContext
 
 def main():
     print("Starting the photobooth server...")
@@ -69,6 +69,7 @@ def main():
     args = parser.parse_args()
     print(f"Starting the photobooth with params: {args}")
     print(args.mode.ascii_art())
+    print_photo_info()
 
     printer = PhotoPrinter("./output", "photobooth", "png", args.should_print, args.mode)
 
@@ -79,6 +80,8 @@ def main():
 
     photo_event = PhotoEvent(**json.loads(args.event_json)) if args.event_json else None
 
+    context = PhotoTakingContext(args)
+
     photobooth = Photobooth(
         display,
         photo_taker,
@@ -86,14 +89,12 @@ def main():
         int(args.num_photos),
         int(args.border_size),
         float(args.photo_delay),
-        args.mode,
+        context,
         photo_event,
-        args.test,
     )
 
     server = PhotoboothServer(photobooth, display, args.mode.get_title(), args.mode.start_prompt())
     server.start()
-
 
 @dataclass
 class PhotoboothServer:
@@ -144,7 +145,6 @@ class PhotoboothServer:
         # do the actual update on the display
         self.display.clear_text()
         self.display.put_text(self.display_text, self.sub_text)
-
 
 if __name__ == "__main__":
     main()
