@@ -1,7 +1,5 @@
 from typing import List
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageColor
-from lib.mode import Mode
-from lib.printer import PhotoPrinter
+from PIL import Image, ImageColor
 
 # Photo strips are 2x6 inches
 PRINTER_DPI = 300
@@ -50,7 +48,8 @@ class PhotoTakingContext:
 
 class PhotoStrip:
 
-    def process_image(self, photo_context: PhotoTakingContext, printer: PhotoPrinter) -> Image.Image:
+    @staticmethod
+    def process_image(photo_context: PhotoTakingContext) -> Image.Image:
         final_image = Image.new(
             mode="RGB",
             size=(PHOTO_STRIP_WIDTH, PHOTO_STRIP_HEIGHT),
@@ -93,7 +92,8 @@ class PhotoStrip:
 
 class DoublePhotoStrip:
 
-    def process_image(self, photo_context: PhotoTakingContext, printer: PhotoPrinter) -> Image.Image:
+    @staticmethod
+    def process_image(photo_context: PhotoTakingContext) -> Image.Image:
         """Takes the photos and turns it into two identical photo strips side by side
 
         This method takes the incoming photographed images, creates a single photo strip out of them, and then
@@ -101,14 +101,12 @@ class DoublePhotoStrip:
 
         TODO: add a line to the middle for people to cut
 
-        :param photo_context: _description_
+        :param photo_context: The photo context containing both the unedited and edited photos
         :type photo_context: PhotoTakingContext
-        :param printer: _description_
-        :type printer: PhotoPrinter
-        :return: _description_
+        :return: Returns the generated photo strip image
         :rtype: Image.Image
         """
-        photo_strip = PhotoStrip().process_image(photo_context, printer)
+        photo_strip = PhotoStrip.process_image(photo_context)
 
         double_photo = Image.new(
             mode="RGB",

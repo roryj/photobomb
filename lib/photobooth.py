@@ -36,6 +36,7 @@ from lib.mode import Mode
 from lib.assembly import DoublePhotoStrip, PhotoTakingContext
 from lib.printer import PhotoPrinter
 
+
 class PhotoTaker(object):
     def __init__(self):
         super().__init__()
@@ -197,8 +198,8 @@ class Photobooth(object):
                 count += 1
 
             # 2c) Optionally frame the image with some more effects
-            print(f"Creating photo strip")
-            photo_strip = DoublePhotoStrip().process_image(self.context, self.printer)
+            print("Creating photo strip")
+            photo_strip = DoublePhotoStrip.process_image(self.context)
 
             # 3) print images!
             print("Printing the resulting image")
