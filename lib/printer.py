@@ -43,7 +43,7 @@ class PhotoPrinter(object):
         if self.should_print:
             print("Attempting to print the image")
             # Available printer sizes should be available in /etc/cups/ppd/<printer-name>.ppd as a *PageSize
-            result = os.system(f'lpr {print_path} -o media="4x6.Fullbleed"')
+            result = os.system(f'lpr {print_path} -o media="dnp4x6"')
             if result == 0:
                 print("Printing was successfull")
             else:
