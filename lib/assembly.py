@@ -6,7 +6,7 @@ PRINTER_DPI = 300
 PHOTO_STRIP_WIDTH = PRINTER_DPI * 2
 PHOTO_STRIP_HEIGHT = PRINTER_DPI * 6
 
-BORDER = int(PRINTER_DPI * 2 / 16 / 2)
+BORDER = 25
 PHOTO_WIDTH = (PRINTER_DPI - BORDER) * 2
 PHOTO_HEIGHT = PRINTER_DPI + int(PRINTER_DPI * 2 / 16) * 2
 BOTTOM_SPACE_HEIGHT = PHOTO_STRIP_HEIGHT - (PHOTO_HEIGHT + BORDER) * 4
@@ -113,12 +113,12 @@ class DoublePhotoStrip:
 
         double_photo.paste(photo_strip, (0, 0))
         double_photo.paste(photo_strip, (PHOTO_STRIP_WIDTH, 0))
-        __add_cut_line(double_photo)
+        _add_cut_line(double_photo)
 
         return double_photo
 
 
-def __add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 255, 255)):
+def _add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 255, 255)):
     """Adds a cut line to the middle of an image
 
     :param img: The image to add the cut line too
@@ -127,7 +127,7 @@ def __add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 2
     :type line_colour: Tuple[int, int, int], optional
     """
 
-    middle = img.width / 2
+    middle = int(img.width / 2)
     line_width_pixels = 2
     line_length_pixels = 20
     on_cut_lint = False
@@ -140,11 +140,12 @@ def __add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 2
             count = 0
 
         if not on_cut_lint:
-            print("skipping")
+            # print("skipping")
             count += 1
             continue
 
         for x in range(-line_width_pixels, line_width_pixels):
+            # print(f"putting pixel @({middle + x}, {y}) -> {line_colour}")
             img.putpixel((middle + x, y), line_colour)
 
         count += 1
