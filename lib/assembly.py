@@ -6,7 +6,7 @@ PRINTER_DPI = 300
 PHOTO_STRIP_WIDTH = PRINTER_DPI * 2
 PHOTO_STRIP_HEIGHT = PRINTER_DPI * 6
 
-BORDER = 25
+BORDER = 24
 PHOTO_WIDTH = (PRINTER_DPI - BORDER) * 2
 PHOTO_HEIGHT = PRINTER_DPI + int(PRINTER_DPI * 2 / 16) * 2
 BOTTOM_SPACE_HEIGHT = PHOTO_STRIP_HEIGHT - (PHOTO_HEIGHT + BORDER) * 4
@@ -78,7 +78,7 @@ class PhotoStrip:
         for x in range(0, bottom_panel.width):
             for y in range(0, bottom_panel.height):
                 r, g, b, a = bottom_panel.getpixel((x, y))
-                # 'a' is the alpha value of the combinaton of all pig images at point x,y
+                # 'a' is the alpha value of the combination of all pig images at point x,y
                 # An alpha of 0 means the pixel is transparent, which we use to create an image
                 # mask only where the ghost pixels are located
                 if a == 0:
@@ -113,12 +113,12 @@ class DoublePhotoStrip:
 
         double_photo.paste(photo_strip, (0, 0))
         double_photo.paste(photo_strip, (PHOTO_STRIP_WIDTH, 0))
-        _add_cut_line(double_photo)
+        _add_cut_line(double_photo, line_x_coordinate=PHOTO_STRIP_WIDTH)
 
         return double_photo
 
 
-def _add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 255, 255)):
+def _add_cut_line(img: Image.Image, line_x_coordinate: int, line_colour: Tuple[int, int, int] = (255, 255, 255)):
     """Adds a cut line to the middle of an image
 
     :param img: The image to add the cut line too
@@ -127,7 +127,6 @@ def _add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 25
     :type line_colour: Tuple[int, int, int], optional
     """
 
-    middle = int(img.width / 2)
     line_width_pixels = 2
     line_length_pixels = 20
     on_cut_lint = False
@@ -146,6 +145,6 @@ def _add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 25
 
         for x in range(-line_width_pixels, line_width_pixels):
             # print(f"putting pixel @({middle + x}, {y}) -> {line_colour}")
-            img.putpixel((middle + x, y), line_colour)
+            img.putpixel((line_x_coordinate + x, y), line_colour)
 
         count += 1
