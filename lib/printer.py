@@ -1,5 +1,7 @@
+import os
 from PIL import Image
 from lib.mode import Mode
+
 
 class PhotoPrinter(object):
     def __init__(
