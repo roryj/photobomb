@@ -94,6 +94,29 @@ class PhotoStrip:
 class DoublePhotoStrip:
 
     def process_image(self, photo_context: PhotoTakingContext, printer: PhotoPrinter) -> Image.Image:
+        """Takes the photos and turns it into two identical photo strips side by side
+
+        This method takes the incoming photographed images, creates a single photo strip out of them, and then
+        duplicates photo strip so we can save and print out two photo strips on one paper
+
+        TODO: add a line to the middle for people to cut
+
+        :param photo_context: _description_
+        :type photo_context: PhotoTakingContext
+        :param printer: _description_
+        :type printer: PhotoPrinter
+        :return: _description_
+        :rtype: Image.Image
+        """
         photo_strip = PhotoStrip().process_image(photo_context, printer)
 
-        return photo_strip
+        double_photo = Image.new(
+            mode="RGB",
+            size=(PHOTO_STRIP_WIDTH * 2, PHOTO_STRIP_HEIGHT),
+            color=ImageColor.getrgb(photo_context.mode.get_background_color()),
+        )
+
+        double_photo.paste(photo_strip, (0, 0))
+        double_photo.paste(photo_strip, (PHOTO_STRIP_WIDTH, 0))
+
+        return double_photo
