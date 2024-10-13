@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from PIL import Image, ImageColor
 
 # Photo strips are 2x6 inches
@@ -99,8 +99,6 @@ class DoublePhotoStrip:
         This method takes the incoming photographed images, creates a single photo strip out of them, and then
         duplicates photo strip so we can save and print out two photo strips on one paper
 
-        TODO: add a line to the middle for people to cut
-
         :param photo_context: The photo context containing both the unedited and edited photos
         :type photo_context: PhotoTakingContext
         :return: Returns the generated photo strip image
@@ -111,10 +109,42 @@ class DoublePhotoStrip:
         double_photo = Image.new(
             mode="RGB",
             size=(PHOTO_STRIP_WIDTH * 2, PHOTO_STRIP_HEIGHT),
-            color=ImageColor.getrgb(photo_context.mode.get_background_color()),
         )
 
         double_photo.paste(photo_strip, (0, 0))
         double_photo.paste(photo_strip, (PHOTO_STRIP_WIDTH, 0))
+        __add_cut_line(double_photo)
 
         return double_photo
+
+
+def __add_cut_line(img: Image.Image, line_colour: Tuple[int, int, int] = (255, 255, 255)):
+    """Adds a cut line to the middle of an image
+
+    :param img: The image to add the cut line too
+    :type img: Image.Image
+    :param line_colour: The colour for the cutline, defaults to (255, 255, 255) aka white
+    :type line_colour: Tuple[int, int, int], optional
+    """
+
+    middle = img.width / 2
+    line_width_pixels = 2
+    line_length_pixels = 20
+    on_cut_lint = False
+    count = 0
+
+    for y in range(PHOTO_STRIP_HEIGHT):
+
+        if count >= line_length_pixels:
+            on_cut_lint = not on_cut_lint
+            count = 0
+
+        if not on_cut_lint:
+            print("skipping")
+            count += 1
+            continue
+
+        for x in range(-line_width_pixels, line_width_pixels):
+            img.putpixel((middle + x, y), line_colour)
+
+        count += 1
