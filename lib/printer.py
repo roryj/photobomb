@@ -45,9 +45,8 @@ class PhotoPrinter(object):
             # Available printer sizes should be available in /etc/cups/ppd/<printer-name>.ppd as a *PageSize
             result = os.system(f'lpr {print_path} -o media="dnp4x6"')
             if result == 0:
-                print("Printing was successfull")
+                print("Printing was successful")
             else:
                 print("Printing failed :(")
         else:
             print("Not printing!")
-

@@ -17,6 +17,7 @@ BOTTOM_PANEL_WIDTH = PHOTO_STRIP_WIDTH
 BOTTOM_PANEL_HEIGHT = int(PRINTER_DPI * 4 / 3)
 BOTTOM_PANEL_OVERLAP = BOTTOM_PANEL_HEIGHT - BOTTOM_SPACE_HEIGHT
 
+
 def print_photo_info():
     print(
         f"""
@@ -29,6 +30,7 @@ The bottom panel image is {BOTTOM_PANEL_WIDTH} x {BOTTOM_PANEL_HEIGHT}px with {B
 ----------
         """
     )
+
 
 class PhotoTakingContext:
 
@@ -45,11 +47,15 @@ class PhotoTakingContext:
     def set_spooky_images(self, images: List[Image.Image]):
         self.spooky_images = images
 
+
 class PhotoStrip:
 
     def process_image(self, photo_context: PhotoTakingContext, printer: PhotoPrinter) -> Image.Image:
-        final_image = Image.new(mode="RGB", size=(PHOTO_STRIP_WIDTH, PHOTO_STRIP_HEIGHT),
-                                color=ImageColor.getrgb(photo_context.mode.get_background_color()))
+        final_image = Image.new(
+            mode="RGB",
+            size=(PHOTO_STRIP_WIDTH, PHOTO_STRIP_HEIGHT),
+            color=ImageColor.getrgb(photo_context.mode.get_background_color()),
+        )
 
         next_image_y = BORDER
         for image in photo_context.images:
@@ -57,15 +63,15 @@ class PhotoStrip:
             new_image_width = int(image.width * scale)
             overflow = new_image_width - PHOTO_WIDTH
             trim = int(overflow / 2)
-            print(f'scale is {scale} and new image width is {new_image_width}')
-            print(f'overflow is {overflow} with trim {trim}')
+            print(f"scale is {scale} and new image width is {new_image_width}")
+            print(f"overflow is {overflow} with trim {trim}")
 
             image = image.resize((new_image_width, PHOTO_HEIGHT))
             image = image.crop((trim, 0, trim + PHOTO_WIDTH, image.height))
 
             final_image.paste(image, (BORDER, next_image_y))
 
-            next_image_y += (BORDER + PHOTO_HEIGHT)
+            next_image_y += BORDER + PHOTO_HEIGHT
 
         bottom_panel = Image.open(photo_context.mode.get_bottom_panel())
         # # Create mask that has the same setup
@@ -80,10 +86,10 @@ class PhotoStrip:
                     continue
                 final_image.putpixel((x, bottom_panel_top + y), (r, g, b, a))
 
-        #final_image.paste(bottom_panel, (0, PHOTO_STRIP_HEIGHT - bottom_panel.height))
+        # final_image.paste(bottom_panel, (0, PHOTO_STRIP_HEIGHT - bottom_panel.height))
 
         return final_image
-        
+
 
 class DoublePhotoStrip:
 
