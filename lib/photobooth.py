@@ -28,7 +28,6 @@ from lib.effect import (
     FinalFrameEffect,
     RandomFrame,
     PhotoStripFrame,
-    SideBySideEffect,
 )
 from lib.mms import send_text
 from lib.s3 import upload_file

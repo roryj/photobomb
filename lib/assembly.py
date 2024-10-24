@@ -106,14 +106,22 @@ class DoublePhotoStrip:
         """
         photo_strip = PhotoStrip.process_image(photo_context)
 
+        color = photo_context.mode.get_background_color()
+
         double_photo = Image.new(
             mode="RGB",
-            size=(PHOTO_STRIP_WIDTH * 2, PHOTO_STRIP_HEIGHT),
+            # Add 40 additional pixels to account for the DNP printer's small cutoff on each side.
+            # Border will be 10 pixels on the left and bottom, 30 pixels on the right and top.
+            size=(PHOTO_STRIP_WIDTH * 2 + 30, PHOTO_STRIP_HEIGHT + 30),
+            color=ImageColor.getrgb(color),
         )
 
-        double_photo.paste(photo_strip, (0, 0))
-        double_photo.paste(photo_strip, (PHOTO_STRIP_WIDTH, 0))
-        _add_cut_line(double_photo, line_x_coordinate=PHOTO_STRIP_WIDTH)
+        colored_background = Image.new(mode="RGB", size=(1200, 1800), )
+
+        # (x, y) of (10, 30) is the upper left corner. We're adding a border as noted above.
+        double_photo.paste(photo_strip, (10, 20))
+        double_photo.paste(photo_strip, (PHOTO_STRIP_WIDTH + 10, 20))
+        _add_cut_line(double_photo, line_x_coordinate=PHOTO_STRIP_WIDTH+10)
 
         return double_photo
 
