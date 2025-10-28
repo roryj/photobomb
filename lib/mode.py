@@ -96,6 +96,16 @@ PIGGY_3 = """
 
 """
 
+PIGGY_2025 = """
+     ,--.-'-,--.
+     \  /-~-\  /
+    / )' a a `( \
+   ( (  ,---.  ) )
+    \ `(_o_o_)' /
+     \   `-'   /
+      | |---| |     PIG-PIT 2025
+      [_]   [_]
+"""
 
 class Mode(Enum):
     spooky = 0
@@ -103,6 +113,7 @@ class Mode(Enum):
     casey = 2
     barbie = 3
     piggy_3 = 4
+    piggy_2025 = 5
 
     def __str__(self):
         return self.name
@@ -121,6 +132,7 @@ class Mode(Enum):
             CASEY,
             BARBIE,
             PIGGY_3,
+            PIGGY_2025,
         ][self.value]
 
     def get_title(self):
@@ -130,11 +142,13 @@ class Mode(Enum):
             "Casey's 30th B-Day Photo Booth",
             "Barbie Booth",
             "Piggy Booth",
+            "Piggy Booth",
         ][self.value]
 
     def start_prompt(self):
         return [
             "Press ENTER to get spooked!",
+            "Press ENTER to get started!",
             "Press ENTER to get started!",
             "Press ENTER to get started!",
             "Press ENTER to get started!",
@@ -148,6 +162,7 @@ class Mode(Enum):
             ["Cheese!", "Cheese!", "Mashed Potato!", "Cheese!"],
             ["Cheese!", "Cheese!", "Work it Cowgirl!", "That's it Cowgirl!"],
             ["Cheese!", "Cheese!", "Bacon!", "Cheese!"],
+            ["Cheese!", "Cheese!", "Bacon!", "Cheese!"],
         ][self.value]
 
     def processing_images_prompt(self):
@@ -157,18 +172,25 @@ class Mode(Enum):
             "Assembling your photos...",
             "Assembling your photos...",
             "Assembling your photos...",
+            "Assembling your photos...",
         ][self.value]
 
     def get_bottom_panel(self):
         return [
-            "resources/halloween/halloween-2024.png",
+            "resources/halloween/halloween-2025.png",
+            "",
+            "",
+            "",
+            "",
+            "resources/pigs/pig-pit-2025.png"
         ][self.value]
 
     def get_background_color(self):
         return [
-            "#290069", # bluey-purple
+            "#21005d", # bluey-purple
             "#ffc7d8", # light pink
             "#000000", # black
             "#f774c2", # Barbie pink
             "#ffc7d8", # light pink
+            "#f23951", # f23951 for umbrella red, or 983325 for sausage brown
         ][self.value]
